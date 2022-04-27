@@ -14,7 +14,15 @@ const User = sequelize.define("user", {
   email: { type: Sequelize.STRING, allowNull: false },
   password: { type: Sequelize.STRING, allowNull: false },
   phone: { type: Sequelize.STRING, allowNull: true},
-  fullName: { type: Sequelize.STRING, allowNull: true }
+  fullName: { type: Sequelize.STRING, allowNull: true },
+  city: { type: Sequelize.STRING, allowNull: true },
+  dob: { type: Sequelize.DATE, allowNull: true },
+  regAdress: { type: Sequelize.STRING, allowNull: true },
+  driverLicense: { type: Sequelize.STRING, allowNull: true },
+  representiveFullName: { type: Sequelize.STRING, allowNull: true },
+  representiveLicense: { type: Sequelize.STRING, allowNull: true },
+  idNumber: { type: Sequelize.STRING, allowNull: true },
+  sportDriverLicense: { type: Sequelize.STRING, allowNull: true }
 });
 
 User.beforeSave( async (user:any, next) => {

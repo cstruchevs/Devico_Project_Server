@@ -13,7 +13,7 @@ const apiLimiter = rateLimiter({
 
 router.route('/register').post(register)
 router.route('/login').post(login)
-router.route('/update').post(updateUser)
+router.route('/update').patch(updateUser)
 
 
 export default router

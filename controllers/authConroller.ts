@@ -50,7 +50,21 @@ export const login: RequestHandler = async (req, res) => {
 };
 
 export const updateUser: RequestHandler = async (req, res) => {
-  const { email, fullName, phone, password, id } = req.body;
+  const {
+    email,
+    fullName,
+    phone,
+    password,
+    id,
+    city,
+    dob,
+    regAdress,
+    driverLicense,
+    representiveFullName,
+    representiveLicense,
+    idNumber,
+    sportDriverLicense,
+  } = req.body;
   if (!password) {
     throw new BadRequestError("Please provide all values");
   }
@@ -60,6 +74,14 @@ export const updateUser: RequestHandler = async (req, res) => {
     fullName: fullName,
     phone: phone,
     password: password,
+    city: city,
+    dob: dob,
+    regAdress: regAdress,
+    driverLicense: driverLicense,
+    representiveFullName: representiveFullName,
+    representiveLicense: representiveLicense,
+    idNumber: idNumber,
+    sportDriverLicense: sportDriverLicense
   });
 
   const userUpdated: any = await User.findOne({ where: { id: id } });
@@ -74,11 +96,11 @@ export const updateUser: RequestHandler = async (req, res) => {
 };
 
 export const deleteUser: RequestHandler = async (req, res) => {
-    const { email } = req.body;
-    if (!email) {
-      throw new BadRequestError("Please provide email");
-    }
-    await User.destroy({ where: { email: email } });
-  
-    res.status(StatusCodes.OK).json(`Deleted user with email ${email}`);
-  };
+  const { email } = req.body;
+  if (!email) {
+    throw new BadRequestError("Please provide email");
+  }
+  await User.destroy({ where: { email: email } });
+
+  res.status(StatusCodes.OK).json(`Deleted user with email ${email}`);
+};
