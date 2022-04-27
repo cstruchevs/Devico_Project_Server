@@ -1,4 +1,6 @@
 import Sequelize from 'sequelize'
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken'
 
 import sequelize from '../db/database'
 
@@ -11,7 +13,25 @@ const User = sequelize.define("user", {
   },
   email: { type: Sequelize.STRING, allowNull: false },
   password: { type: Sequelize.STRING, allowNull: false },
-  phone: { type: Sequelize.STRING, allowNull: true}
+  phone: { type: Sequelize.STRING, allowNull: true},
+  fullName: { type: Sequelize.STRING, allowNull: true }
 });
 
-module.exports = User;
+User.beforeSave( async (user:any, next) => {
+  if (!user.chanhged('password')) return
+  const salt = await bcrypt.genSalt(10)
+  user.password = await bcrypt.hash(user.password, salt)
+})
+
+User.prototype.createJWT = function () {
+  return jwt.sign({ userId: this.id }, 'jwtsecret', {
+    expiresIn: '1d',
+  })
+}
+
+User.prototype.comparePassword = async function (candidatePassword:any) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password)
+  return isMatch
+}
+
+export default User;
