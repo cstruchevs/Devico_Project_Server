@@ -72,3 +72,13 @@ export const updateUser: RequestHandler = async (req, res) => {
 
   res.status(StatusCodes.OK).json({ userUpdated, token });
 };
+
+export const deleteUser: RequestHandler = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+      throw new BadRequestError("Please provide email");
+    }
+    await User.destroy({ where: { email: email } });
+  
+    res.status(StatusCodes.OK).json(`Deleted user with email ${email}`);
+  };
