@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, UnAuthenticatedError } from "../errors/index";
@@ -13,7 +14,14 @@ export const register: RequestHandler = async (req, res) => {
   if (userAlreadyExists) {
     throw new BadRequestError("Email already in use");
   }
-  const user: any = await User.create({ email, password, phone, fullName });
+
+  const user: any = await User.create({
+    email,
+    password,
+    phone,
+    fullName,
+  });
+  user.hashPassword();
 
   const token = user.createJWT();
   res.status(StatusCodes.CREATED).json({
@@ -41,12 +49,12 @@ export const login: RequestHandler = async (req, res) => {
   res.status(StatusCodes.OK).json({ user, token });
 };
 
-export const updateUser:RequestHandler = async (req, res) => {
+export const updateUser: RequestHandler = async (req, res) => {
   const { email, fullName, phone, password, id } = req.body;
   if (!password) {
-    throw new BadRequestError('Please provide all values')
+    throw new BadRequestError("Please provide all values");
   }
-  const user:any = await User.upsert({
+  const user: any = await User.upsert({
     id: id,
     email: email,
     fullName: fullName,
@@ -54,9 +62,13 @@ export const updateUser:RequestHandler = async (req, res) => {
     password: password,
   });
 
-  await user.save();
+  const userUpdated: any = await User.findOne({ where: { id: id } });
 
-  const token = user.createJWT();
+  if (password) {
+    userUpdated.hashPassword();
+  }
 
-  res.status(StatusCodes.OK).json({ user, token });
+  const token = userUpdated.createJWT();
+
+  res.status(StatusCodes.OK).json({ userUpdated, token });
 };

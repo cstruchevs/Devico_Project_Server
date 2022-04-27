@@ -18,10 +18,15 @@ const User = sequelize.define("user", {
 });
 
 User.beforeSave( async (user:any, next) => {
-  if (!user.chanhged('password')) return
+  //if (!user.chanhged('password')) return
   const salt = await bcrypt.genSalt(10)
   user.password = await bcrypt.hash(user.password, salt)
 })
+
+User.prototype.hashPassword = async function () {
+  const salt = await bcrypt.genSalt(10)
+  this.password = await bcrypt.hash(this.password, salt)
+  }
 
 User.prototype.createJWT = function () {
   return jwt.sign({ userId: this.id }, 'jwtsecret', {
