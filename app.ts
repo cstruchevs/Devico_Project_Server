@@ -3,7 +3,6 @@ const app: Application = express()
 import "express-async-errors";
 
 import dotenv from "dotenv"
-import { Error } from "sequelize/types"
 import notFoundMiddleware from "./middleware/not-found"
 import errorHandlerMiddleware from "./middleware/error-handler"
 import sequelize from "./db/database"
@@ -12,18 +11,21 @@ import carsRouter from "./routes/carsRoutes"
 import User from "./models/User";
 import Car from "./models/Car";
 
+
 dotenv.config();
 
 app.use(express.json());
 
-app.use(authRouter);
 app.use("/cars", carsRouter)
+app.use(authRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-User.hasMany(Car, {as: "cars"})
-Car.belongsTo(User, {foreignKey: "carId", as: "user"})
+User.hasMany(Car, {foreignKey: "user_id", onDelete: "CASCADE", onUpdate:"CASCADE"})
+//Car.hasOne(User)
+//User.belongsToMany(Event, {through: EventParticipants})
+//Event.belongsToMany(User, {through: EventParticipants})
 
 const port = process.env.PORT || 5000;
 

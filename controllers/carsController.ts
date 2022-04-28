@@ -5,7 +5,7 @@ import Car from "../models/Car";
 import User from "../models/User";
 
 export const deleteCar: RequestHandler = async (req, res) => {
-  const { id } = req.body;
+  const { id } = req.params;
   if (!id) {
     throw new BadRequestError("Please provide id");
   }
@@ -24,7 +24,7 @@ export const postCar: RequestHandler = async (req, res) => {
     viaNumber,
     driveTrain,
     fullNameOwner,
-    id
+    id,
   } = req.body;
 
   if (
@@ -40,25 +40,38 @@ export const postCar: RequestHandler = async (req, res) => {
     throw new BadRequestError("please provide all values");
   }
 
-  const user:any = await User.findOne({where: { id: id}})
-  await user.createCar({ model,
+  const user: any = await User.findOne({
+    where: { id: id },
+    include: ["cars"],
+  });
+  if (!user) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+  await user.createCar({
+    model,
     year,
     capaciteEngine,
     regVihicleNumber,
     technicalPassNumber,
     viaNumber,
     driveTrain,
-    fullNameOwner,})
+    fullNameOwner,
+  });
 
-  res.status(StatusCodes.OK).json(user);
+  res.status(StatusCodes.OK).json(user.cars);
 };
 
 export const getAllCars: RequestHandler = async (req, res) => {
-    const id = req.body;
-    const user:any = await User.findOne({where: { id: id}})
-    const result = await user.findAll({include: ["cars"]})
-    res.status(StatusCodes.OK).json(result)
-} 
+  const { id } = req.params;
+  const user: any = await User.findOne({
+    where: { id: id },
+    include: ["cars"],
+  });
+  if (!user) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+  res.status(StatusCodes.OK).json(user.cars);
+};
 
 export const updateCar: RequestHandler = async (req, res) => {
   const {
@@ -76,8 +89,13 @@ export const updateCar: RequestHandler = async (req, res) => {
   if (!id) {
     throw new BadRequestError("Please provide id");
   }
+  let car: any = await Car.findOne({ where: { id: id }, include: ["cars"] });
 
-  const car: any = await Car.upsert({
+  if (!car) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+
+  car = await Car.upsert({
     id: id,
     model: model,
     year: year,

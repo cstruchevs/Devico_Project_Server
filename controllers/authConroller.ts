@@ -20,7 +20,8 @@ export const register: RequestHandler = async (req, res) => {
     phone,
     fullName,
   });
-  user.hashPassword();
+
+  //await user.hashPassword();
 
   const token = user.createJWT();
   res.status(StatusCodes.CREATED).json({
@@ -44,7 +45,6 @@ export const login: RequestHandler = async (req, res) => {
     throw new UnAuthenticatedError("Invalid Credentials");
   }
   const token = user.createJWT();
-  user.password = undefined;
   res.status(StatusCodes.OK).json({ user, token });
 };
 
@@ -67,7 +67,13 @@ export const updateUser: RequestHandler = async (req, res) => {
   if (!password) {
     throw new BadRequestError("Please provide all values");
   }
-  const user: any = await User.upsert({
+
+  const user: any = await User.findOne({ where: { id: id } });
+  if (!user) {
+    throw new UnAuthenticatedError("Invalid Credentials");
+  }
+
+  await User.upsert({
     id: id,
     email: email,
     fullName: fullName,
@@ -80,7 +86,7 @@ export const updateUser: RequestHandler = async (req, res) => {
     representiveFullName: representiveFullName,
     representiveLicense: representiveLicense,
     idNumber: idNumber,
-    sportDriverLicense: sportDriverLicense
+    sportDriverLicense: sportDriverLicense,
   });
 
   const userUpdated: any = await User.findOne({ where: { id: id } });
