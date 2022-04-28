@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, UnAuthenticatedError } from "../errors/index";
