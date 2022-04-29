@@ -9,6 +9,7 @@ import cors from 'cors'
 import notFoundMiddleware from "./middleware/not-found"
 import errorHandlerMiddleware from "./middleware/error-handler"
 import sequelize from "./db/database"
+import auth from "./middleware/auth";
 //Routes
 import authRouter from "./routes/authRoutes"
 import carsRouter from "./routes/carsRoutes"
@@ -28,7 +29,7 @@ app.use(express.json());
 
 app.use("/events", eventsRouter)
 app.use("/cars", carsRouter)
-app.use(authRouter)
+app.use(auth, authRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
