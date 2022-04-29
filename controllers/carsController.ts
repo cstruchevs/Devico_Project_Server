@@ -28,13 +28,13 @@ export const postCar: RequestHandler = async (req, res) => {
   } = req.body;
 
   if (
-    !model &&
-    !year &&
-    !capaciteEngine &&
-    !regVihicleNumber &&
-    !technicalPassNumber &&
-    !viaNumber &&
-    !driveTrain &&
+    !model ||
+    !year ||
+    !capaciteEngine ||
+    !regVihicleNumber ||
+    !technicalPassNumber ||
+    !viaNumber ||
+    !driveTrain ||
     !fullNameOwner
   ) {
     throw new BadRequestError("please provide all values");
