@@ -25,16 +25,19 @@ const User = sequelize.define("user", {
   sportDriverLicense: { type: Sequelize.STRING, allowNull: true },
 });
 
-User.beforeSave(async (user: any, next) => {
-  //    if (!user.chanhged('password')) return
+User.beforeCreate(async (user: any, next) => {
+
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
 });
 
-User.prototype.hashPassword = async function () {
+User.beforeUpdate(async (user: any, next) => {
+  if(user.changed('password')) {
+    return
+  }
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-};
+  user.password = await bcrypt.hash(user.password, salt);
+});
 
 User.prototype.createJWT = function () {
   return jwt.sign({ userId: this.id }, "jwtsecret", {

@@ -29,7 +29,7 @@ app.use(express.json());
 
 app.use("/events", eventsRouter)
 app.use("/cars", carsRouter)
-app.use(auth, authRouter)
+app.use(authRouter)
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

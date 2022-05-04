@@ -47,7 +47,7 @@ export const postCar: RequestHandler = async (req, res) => {
   if (!user) {
     throw new UnAuthenticatedError("Invalid Credentials");
   }
-  await user.createCar({
+    const createdCar = await user.createCar({
     model,
     year,
     capaciteEngine,
@@ -58,7 +58,9 @@ export const postCar: RequestHandler = async (req, res) => {
     fullNameOwner,
   });
 
-  res.status(StatusCodes.OK).json(user.cars);
+  
+
+  res.status(StatusCodes.OK).json(createdCar);
 };
 
 export const getAllCars: RequestHandler = async (req, res) => {

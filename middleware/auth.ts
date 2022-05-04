@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken'
-import { UnAuthenticatedError } from '../errors/index.js'
+import { UnAuthenticatedError } from '../errors/index'
 
 const auth:RequestHandler = async (req: any, res, next) => {
   const authHeader = req.headers.authorization
