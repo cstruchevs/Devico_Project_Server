@@ -19,6 +19,9 @@ import User from "./models/User";
 import Car from "./models/Car";
 import Event from "./models/Event";
 import EventParticipants from "./models/EventParticipants";
+import License from "./models/License";
+import LicenseType from "./models/LicenseType";
+import LicenseMembers from "./models/LicenseMembers";
 
 dotenv.config();
 
@@ -34,9 +37,14 @@ app.use(authRouter)
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
+License.hasOne(LicenseType, {foreignKey: "license_id", onDelete: "CASCADE", onUpdate:"CASCADE"})
+User.belongsToMany(License, {through: LicenseMembers})
+License.belongsToMany(User, {through: LicenseMembers})
 User.hasMany(Car, {foreignKey: "user_id", onDelete: "CASCADE", onUpdate:"CASCADE"})
+EventParticipants.hasMany(Car, {foreignKey: "eventParticipants_id", onDelete: "CASCADE", onUpdate:"CASCADE"})
 User.belongsToMany(Event, {through: EventParticipants})
 Event.belongsToMany(User, {through: EventParticipants})
+
 
 const port = process.env.PORT || 5000;
 

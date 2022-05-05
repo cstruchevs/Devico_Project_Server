@@ -1,23 +1,39 @@
 import Sequelize from 'sequelize'
 
 import sequelize from '../db/database'
-import Event from './Event';
-import User from './User';
+import Car from './Car'
+import Event from './Event'
+import User from './User'
 
-const EventParticipants = sequelize.define("evet-participants", {
+const EventParticipants = sequelize.define('event-participants', {
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    allowNull: false,
+    primaryKey: true,
+  },
+  vehicleClass: { type: Sequelize.STRING, allowNull: false },
   userId: {
     type: Sequelize.INTEGER,
     references: {
-      model: User, 
-      key: 'id'
-    }
-  },eventId: {
+      model: User,
+      key: 'id',
+    },
+  },
+  carId: {
     type: Sequelize.INTEGER,
     references: {
-      model: Event, 
-      key: 'id'
-    }
-  }
-});
+      model: Car,
+      key: 'id',
+    },
+  },
+  eventId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: Event,
+      key: 'id',
+    },
+  },
+})
 
 export default EventParticipants

@@ -16,7 +16,8 @@ const Event = sequelize.define("event", {
   status: { type: Sequelize.STRING, allowNull: false },
   series: { type: Sequelize.STRING, allowNull: false },
   costOfParticipation: { type: Sequelize.STRING, allowNull: false },
-  eventInfo: { type: Sequelize.STRING, allowNull: false }
+  eventInfo: { type: Sequelize.STRING, allowNull: false },
+  statusProgress: { type: Sequelize.STRING, allowNull: false },
 });
 
 export default Event
