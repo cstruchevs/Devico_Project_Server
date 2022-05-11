@@ -1,0 +1,10 @@
+"use strict";
+exports.__esModule = true;
+var newsController_1 = require("./../controllers/newsController");
+var express_1 = require("express");
+var router = express_1["default"].Router();
+router.route('/').post(newsController_1.postNews);
+router.route('/').get(newsController_1.getNews);
+router.route('/').patch(newsController_1.updateNews);
+router.route('/')["delete"](newsController_1.deleteNews);
+exports["default"] = router;

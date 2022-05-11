@@ -1,0 +1,12 @@
+"use strict";
+exports.__esModule = true;
+var express_1 = require("express");
+var licenseCotroller_1 = require("../controllers/licenseCotroller");
+var router = express_1["default"].Router();
+router.route('/').get(licenseCotroller_1.getLicenses);
+router.route('/').post(licenseCotroller_1.postLicense);
+router.route('/licenseType').post(licenseCotroller_1.postLicenseType);
+router.route('/registerToLicense').post(licenseCotroller_1.userRegisterLicense);
+router.route('/deleteLicense/:id').post(licenseCotroller_1.deleteLicense);
+router.route('/deleteLicenseType/:id').post(licenseCotroller_1.deleteLicenseType);
+exports["default"] = router;
