@@ -62,7 +62,7 @@ const port = process.env.PORT || 5000
 const start = (): void => {
   sequelize
     .sync({ force: true })
-    //.sync()
+    // .sync()
     .then(() => {
       app.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)

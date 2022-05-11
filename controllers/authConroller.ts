@@ -6,15 +6,6 @@ import User from '../models/User'
 import { StatusCodes } from 'http-status-codes'
 import { BadRequestError, UnAuthenticatedError } from '../errors/index'
 import DriversData from '../models/DriversData'
-import nodemailer from 'nodemailer'
-
-let mail = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'cstruchevs@gmail.com',
-    pass: 'semenDigital20124265000s'
-  }
-});
 
 export const register: RequestHandler = async (req, res) => {
   const { email, password, phone, fullName } = req.body
@@ -163,30 +154,4 @@ export const getUsersDriversData:RequestHandler = async (req, res) => {
   const driversData: any = await DriversData.findOne({where: {user_id: id}})
 
   res.status(StatusCodes.OK).json(driversData)
-}
-
-export const sendEmail:RequestHandler = async (req, res) => {
-  const {email} = req.body
-
-  if (!email) {
-    throw new BadRequestError('Please provide email')
-  }
-
-  const user = User.findOne({where: {email: email}})
-
-  let mailOptions = {
-    from: 'cstruchevs@gmail.com',
-    to: `${email}`,
-    subject: 'Sending Email with your password',
-    text: `Сlick to the next link to change your password`,
-    html: '<p>Click <a href="http://localhost:3000/sessions/recover/' + recovery_token + '">here</a> to reset your password</p>'
-  }
-   
-  mail.sendMail(mailOptions, function(error, info){
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Email sent: ' + info.response);
-    }
-  });
 }
