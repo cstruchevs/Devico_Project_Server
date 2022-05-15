@@ -6,6 +6,7 @@ import User from '../models/User'
 import { StatusCodes } from 'http-status-codes'
 import { BadRequestError, UnAuthenticatedError } from '../errors/index'
 import DriversData from '../models/DriversData'
+import { uploadFile, getFileStream } from './s3Constroller'
 
 export const register: RequestHandler = async (req, res) => {
   const { email, password, phone, fullName } = req.body
@@ -25,8 +26,8 @@ export const register: RequestHandler = async (req, res) => {
     fullName,
   })
 
-  const userDriversData:any = await User.findOne({ where: { email: email }, attributes: ["id"] })
-  const driversData: any = await DriversData.create({user_id: userDriversData.id})
+  const userDriversData: any = await User.findOne({ where: { email: email }, attributes: ['id'] })
+  const driversData: any = await DriversData.create({ user_id: userDriversData.id })
 
   const token = user.createJWT()
   res.status(StatusCodes.CREATED).json({
@@ -54,13 +55,10 @@ export const login: RequestHandler = async (req, res) => {
 }
 
 export const updateUser: RequestHandler = async (req, res) => {
-  const {
-    email,
-    fullName,
-    phone,
-    password,
-    id
-  } = req.body
+  const { email, fullName, phone, password, id } = req.body
+
+  const file = req.file
+  const result = await uploadFile(file?.path, file?.filename)
 
   const user: any = await User.findOne({ where: { id: id } })
   if (!user) {
@@ -110,7 +108,6 @@ export const updateDriversData: RequestHandler = async (req, res) => {
 
   if (!id) {
     throw new BadRequestError('Please provide all values')
-    
   }
 
   const driversData: any = await DriversData.findOne({ where: { user_id: id } })
@@ -129,14 +126,21 @@ export const updateDriversData: RequestHandler = async (req, res) => {
       idNumber: idNumber,
       sportDriverLicense: sportDriverLicense,
       nickname: nickname,
-      phone: phone
+      phone: phone,
     },
     { where: { id: id } },
   )
   res.status(StatusCodes.OK).json(driversData)
 }
 
-export const getUsersDriversData:RequestHandler = async (req, res) => {
+export const getImage: RequestHandler = async (req, res) => {
+  const key = req.params.key
+  const readStream = getFileStream(key)
+
+  readStream.pipe(res)
+}
+
+export const getUsersDriversData: RequestHandler = async (req, res) => {
   const { id } = req.params
 
   if (!id) {
@@ -151,7 +155,7 @@ export const getUsersDriversData:RequestHandler = async (req, res) => {
     throw new BadRequestError('Please correct id')
   }
 
-  const driversData: any = await DriversData.findOne({where: {user_id: id}})
+  const driversData: any = await DriversData.findOne({ where: { user_id: id } })
 
   res.status(StatusCodes.OK).json(driversData)
 }

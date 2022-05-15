@@ -57,12 +57,12 @@ LicenseType.hasMany(License, {
 User.belongsToMany(Event, { through: EventParticipants })
 Event.belongsToMany(User, { through: EventParticipants })
 
-const port = process.env.PORT || 5000
+const port = 5000
 
 const start = (): void => {
   sequelize
-    .sync({ force: true })
-    // .sync()
+    // .sync({ force: true })
+    .sync()
     .then(() => {
       app.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)
