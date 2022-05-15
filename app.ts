@@ -30,7 +30,7 @@ dotenv.config()
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', "http://192.168.56.1:3000"],
   }),
 )
 app.use(express.json())
@@ -61,8 +61,8 @@ const port = 5000
 
 const start = (): void => {
   sequelize
-    // .sync({ force: true })
-    .sync()
+    .sync({ force: true })
+    // .sync()
     .then(() => {
       app.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)

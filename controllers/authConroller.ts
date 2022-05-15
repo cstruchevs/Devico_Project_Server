@@ -57,9 +57,6 @@ export const login: RequestHandler = async (req, res) => {
 export const updateUser: RequestHandler = async (req, res) => {
   const { email, fullName, phone, password, id } = req.body
 
-  const file = req.file
-  const result = await uploadFile(file?.path, file?.filename)
-
   const user: any = await User.findOne({ where: { id: id } })
   if (!user) {
     throw new UnAuthenticatedError('Invalid Credentials')
@@ -69,6 +66,12 @@ export const updateUser: RequestHandler = async (req, res) => {
   if (password) {
     const salt = await bcrypt.genSalt(10)
     hash = await bcrypt.hash(password, salt)
+  }
+
+  if (req.file) {
+    const file = req.file
+    const uploadedImage = await uploadFile(file?.path, file?.filename)
+    user.update({ avatar: uploadedImage.Key }, { where: { id: id } })
   }
 
   user.update(

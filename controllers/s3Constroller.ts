@@ -1,11 +1,13 @@
 import * as fs from 'fs'
 import * as AWS from 'aws-sdk'
+import dotenv from 'dotenv';
 
+dotenv.config();
 
-const bucketName: string =  process.env["AWS_BUCKET_NAME"] as string
-const region: string = process.env["AWS_BUCKET_REGION"] as string
-const accessKeyId: string = process.env["AWS_ACCESS_KEY"] as string
-const secretAccessKey = process.env["AWS_SECRET_KEY"] as string
+const bucketName: string =  (process.env["AWS_BUCKET_NAME"] as string)
+const region: string = (process.env["AWS_BUCKET_REGION"] as string)
+const accessKeyId: string = (process.env["AWS_ACCESS_KEY"] as string)
+const secretAccessKey: string = (process.env["AWS_SECRET_KEY"] as string)
 
 const s3 = new AWS.S3({
   region,
