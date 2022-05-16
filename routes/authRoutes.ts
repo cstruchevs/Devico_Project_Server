@@ -22,7 +22,7 @@ const apiLimiter = rateLimiter({
   message: 'Too many requests from this IP, please try again after 15 minutes',
 })
 
-router.route('/images/:key').get(getImage)
+router.route('/images/:folder/:key').get(getImage)
 router.route('/register').post(register)
 router.route('/login').post(login)
 router.route('/update').patch(upload.single('picture'), updateUser)

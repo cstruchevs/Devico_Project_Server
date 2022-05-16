@@ -6,7 +6,7 @@ import User from '../models/User'
 import { StatusCodes } from 'http-status-codes'
 import { BadRequestError, UnAuthenticatedError } from '../errors/index'
 import DriversData from '../models/DriversData'
-import { uploadFile, getFileStream } from './s3Constroller'
+import { uploadFile, getFileStream, deleteFile } from './s3Constroller'
 
 export const register: RequestHandler = async (req, res) => {
   const { email, password, phone, fullName } = req.body
@@ -68,16 +68,19 @@ export const updateUser: RequestHandler = async (req, res) => {
     hash = await bcrypt.hash(password, salt)
   }
 
-  if (req.file) {
-    const file = req.file
-    const uploadedImage = await uploadFile(file?.path, file?.filename)
-    user.update({ avatar: uploadedImage.Key }, { where: { id: id } })
-  }
-
   user.update(
     { email: email, fullName: fullName, password: hash, phone: phone },
     { where: { id: id } },
   )
+
+  if (req.file) {
+    const file = req.file
+    if(user.avatar) {
+      const deleteAvatar = await deleteFile(user.avatar)
+    }
+    const uploadedImage = await uploadFile(file?.path, file?.filename, "avatars")
+    user.update({ avatar: uploadedImage.Key}, { where: { id: id } })
+  }
 
   const token = user.createJWT()
 
@@ -138,7 +141,8 @@ export const updateDriversData: RequestHandler = async (req, res) => {
 
 export const getImage: RequestHandler = async (req, res) => {
   const key = req.params.key
-  const readStream = getFileStream(key)
+  const folder = req.params.folder
+  const readStream = getFileStream(folder, key)
 
   readStream.pipe(res)
 }

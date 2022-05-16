@@ -16,6 +16,7 @@ import authRouter from './routes/authRoutes'
 import carsRouter from './routes/carsRoutes'
 import eventsRouter from './routes/eventsRoutes'
 import licenseRouter from './routes/licenseRoutes'
+import userRouter from './routes/userRoutes'
 //Models
 import User from './models/User'
 import Car from './models/Car'
@@ -40,6 +41,7 @@ app.use('/events', eventsRouter)
 app.use('/cars', carsRouter)
 app.use('/license', licenseRouter)
 app.use(authRouter)
+app.use(userRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
@@ -61,8 +63,8 @@ const port = 5000
 
 const start = (): void => {
   sequelize
-    .sync({ force: true })
-    // .sync()
+    // .sync({ force: true })
+    .sync()
     .then(() => {
       app.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)
