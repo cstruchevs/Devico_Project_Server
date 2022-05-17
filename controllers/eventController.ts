@@ -7,6 +7,7 @@ import EventParticipants from '../models/EventParticipants'
 import { Op, where } from 'sequelize/types'
 import moment from 'moment'
 import sequelize from '../db/database'
+import Car from '../models/Car'
 
 export const postEvent: RequestHandler = async (req, res) => {
   let {
@@ -55,11 +56,14 @@ export const postEvent: RequestHandler = async (req, res) => {
 
 export const userRegisterEvent: RequestHandler = async (req, res) => {
   const { id: userId, eventId: eventId, carId: carId,vehicleClass } = req.body
+  
   if (!userId || !eventId || !vehicleClass || !carId) {
     throw new BadRequestError('please provide all values')
   }
-  await EventParticipants.create({ userId, eventId, vehicleClass, carId })
 
+  const event:any = await EventParticipants.create({ userId, eventId, vehicleClass })
+
+  await Car.update({eventId}, {where: {id: carId}})
   res
     .status(StatusCodes.OK)
     .json(`User with id ${userId} registered to the event with id ${eventId}`)
@@ -113,7 +117,14 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 }
 
 export const getAllEvents: RequestHandler = async (req, res) => {
-  const events = await Event.findAll()
+  const events = await Event.findAll({
+    include: {
+      model: User,
+      through: {
+        attributes: [],
+      },
+    }
+  })
   res.status(StatusCodes.OK).json(events)
 }
 

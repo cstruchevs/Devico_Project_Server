@@ -7,37 +7,33 @@ import LicenseMembers from '../models/LicenseMembers'
 
 export const postLicense: RequestHandler = async (req, res) => {
   let {
-    fullNameUK,
-    fullNameLat,
+    fullNameUkranian,
+    fullNameLatin,
     dob,
     nativeCity,
     address,
-    idNumber,
     email,
     phone,
     identificationNum,
-    licenseName,
-    licenseType_id,
+    license,
     status,
   } = req.body
 
   if (
-    !fullNameUK ||
-    !fullNameLat ||
+    !fullNameUkranian ||
+    !fullNameLatin ||
     !dob ||
     !nativeCity ||
     !address ||
-    !idNumber ||
     !identificationNum ||
     !email ||
     !phone ||
-    !licenseName || 
-    !licenseType_id
+    !license
   ) {
     throw new BadRequestError('please provide all values')
   }
 
-  const licenseType: any = await LicenseType.findOne({ where: { name: licenseName } })
+  const licenseType: any = await LicenseType.findOne({ where: { name: license } })
   if (!licenseType) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
@@ -46,21 +42,19 @@ export const postLicense: RequestHandler = async (req, res) => {
     status = 'no Paid'
   }
 
-  const license: any = await licenseType.createLicense({
-    fullNameUK,
-    fullNameLat,
+  const licenseNew: any = await licenseType.createLicense({
+    fullNameUkranian,
+    fullNameLatin,
     dob,
     identificationNum,
     nativeCity,
     address,
-    idNumber,
     email,
     phone,
     status,
-    licenseType_id,
   })
 
-  res.status(StatusCodes.OK).json(license)
+  res.status(StatusCodes.OK).json(licenseNew)
 }
 
 export const postLicenseType: RequestHandler = async (req, res) => {
@@ -78,6 +72,11 @@ export const postLicenseType: RequestHandler = async (req, res) => {
   res.status(StatusCodes.OK).json(licenseType)
 }
 
+export const getLicenseTypes: RequestHandler = async (req, res) => {
+  const licenseTypes: any = await LicenseType.findAll()
+  res.status(StatusCodes.OK).json(licenseTypes)
+}
+
 export const userRegisterLicense: RequestHandler = async (req, res) => {
   const { id: userId, licenseId: licenseId } = req.body
   if (!userId || !licenseId) {
@@ -92,7 +91,7 @@ export const userRegisterLicense: RequestHandler = async (req, res) => {
 
 export const getLicenses: RequestHandler = async (req, res) => {
   const licenses = await LicenseType.findAll({
-    include: ["licenses"]
+    include: ['licenses'],
   })
   res.status(StatusCodes.OK).json(licenses)
 }

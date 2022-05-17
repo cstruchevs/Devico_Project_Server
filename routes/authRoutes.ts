@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 
-import { getUsersDriversData, login, register, updateDriversData, updateUser } from '../controllers/authConroller'
+import { getUsersDriversData, login, recoverPassword, recoverPasswordVerify, register, updateDriversData, updateUser } from '../controllers/authConroller'
 
 import rateLimiter from 'express-rate-limit'
 
@@ -11,6 +11,8 @@ const apiLimiter = rateLimiter({
   message: 'Too many requests from this IP, please try again after 15 minutes',
 })
 
+router.route('/recover-password').post(recoverPassword)
+router.route('/recover-password-verify/:id/:token').post(recoverPasswordVerify)
 router.route('/register').post(register)
 router.route('/login').post(login)
 router.route('/update').patch(updateUser)
