@@ -5,14 +5,7 @@ const upload = multer({ dest: 'imgs/' })
 
 const router = express.Router()
 
-import {
-  getUsersDriversData,
-  login,
-  register,
-  updateDriversData,
-  updateUser,
-  getImage
-} from '../controllers/authConroller'
+import { getUsersDriversData, login, recoverPassword, recoverPasswordVerify, register, updateDriversData, updateUser,  getImage} from '../controllers/authConroller'
 
 import rateLimiter from 'express-rate-limit'
 
@@ -23,6 +16,8 @@ const apiLimiter = rateLimiter({
 })
 
 router.route('/images/:folder/:key').get(getImage)
+router.route('/recover-password').post(recoverPassword)
+router.route('/recover-password-verify/:id/:token').post(recoverPasswordVerify)
 router.route('/register').post(register)
 router.route('/login').post(login)
 router.route('/update').patch(upload.single('picture'), updateUser)

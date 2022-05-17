@@ -1,5 +1,5 @@
 import express, { Application } from 'express'
-const app: Application = express()
+export const app: Application = express()
 
 //utils
 import 'express-async-errors'
@@ -38,8 +38,8 @@ app.use(express.json())
 
 app.use('/news', newsRouter)
 app.use('/events', eventsRouter)
-app.use('/cars', carsRouter)
-app.use('/license', licenseRouter)
+app.use('/cars', auth, carsRouter)
+app.use('/license', auth, licenseRouter)
 app.use(authRouter)
 app.use(userRouter)
 
@@ -55,9 +55,10 @@ LicenseType.hasMany(License, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 })
-//EventParticipants.hasMany(Car, { foreignKey: 'eventParticipants_id' })
+// EventParticipants.hasMany(Car, { foreignKey: 'eventParticipants_id' })
 User.belongsToMany(Event, { through: EventParticipants })
 Event.belongsToMany(User, { through: EventParticipants })
+Event.hasOne(Car, { foreignKey: 'eventId' })
 
 const port = 5000
 

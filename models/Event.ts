@@ -2,7 +2,7 @@ import Sequelize from 'sequelize'
 
 import sequelize from '../db/database'
 
-const Event = sequelize.define("event", {
+const Event = sequelize.define('event', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -18,6 +18,7 @@ const Event = sequelize.define("event", {
   costOfParticipation: { type: Sequelize.STRING, allowNull: false },
   eventInfo: { type: Sequelize.STRING, allowNull: false },
   statusProgress: { type: Sequelize.STRING, allowNull: false },
-});
+  image: { type: Sequelize.STRING, allowNull: true },
+})
 
 export default Event

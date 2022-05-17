@@ -20,13 +20,6 @@ const EventParticipants = sequelize.define('event-participants', {
       key: 'id',
     },
   },
-  carId: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: Car,
-      key: 'id',
-    },
-  },
   eventId: {
     type: Sequelize.INTEGER,
     references: {

@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router()
 
 import { deleteCar, getAllCars, updateCar, postCar } from '../controllers/carsController'
+import auth from '../middleware/auth'
 
 router.route('/post').post(postCar)
 router.route('/update').patch(updateCar)

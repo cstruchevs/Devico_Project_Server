@@ -7,6 +7,17 @@ import { StatusCodes } from 'http-status-codes'
 import { BadRequestError, UnAuthenticatedError } from '../errors/index'
 import DriversData from '../models/DriversData'
 import { uploadFile, getFileStream, deleteFile } from './s3Constroller'
+import nodemailer from 'nodemailer'
+import jwt, { JwtPayload } from 'jsonwebtoken'
+
+let mail = nodemailer.createTransport({
+  port: 587,
+  service: 'gmail',
+  auth: {
+    user: 'cstruchevs@gmail.com',
+    pass: 'semenDigital20124265000s'
+  }
+});
 
 export const register: RequestHandler = async (req, res) => {
   const { email, password, phone, fullName } = req.body
@@ -165,4 +176,56 @@ export const getUsersDriversData: RequestHandler = async (req, res) => {
   const driversData: any = await DriversData.findOne({ where: { user_id: id } })
 
   res.status(StatusCodes.OK).json(driversData)
+}
+
+export const recoverPassword:RequestHandler = async (req, res) => {
+  const {email} = req.body
+
+  if (!email) {
+    throw new BadRequestError('Please provide email')
+  }
+
+  const user:any = await User.findOne({where: {email: email}})
+  
+  if (!user) {
+    throw new BadRequestError('Please provide correct email')
+  }
+
+  const token = user.createJWT()
+  
+  const link = `http://localhost:3000/recover-password/${user.id}/${token}`
+
+  let mailOptions = {
+    from: 'cstruchevs@gmail.com',
+    to: `${email}`,
+    subject: 'Link to change your password',
+    text: `Сlick to the next link to change your password`,
+    html: `<p>Click <a href=${link}>here</a> to reset your password</p>`
+  }
+   
+  mail.sendMail(mailOptions, function(error:any, info:any){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
+  res.status(StatusCodes.OK).json("Email sent")
+}
+
+export const recoverPasswordVerify:RequestHandler = async (req, res) => {
+  const {id, token} = req.params 
+  console.log("---------------------------------------------------")
+  console.log(token)
+  if (!id && !token) {
+    throw new BadRequestError('Please provide email')
+  }
+  try {
+    const virify:string | JwtPayload = jwt.verify(token, "jwtsecret")
+  } catch (error) {
+    // res.status(400).send(error);
+    throw new UnAuthenticatedError('Authentication Invalid')
+    
+  }
+  res.status(StatusCodes.OK).json("Verified")
 }
