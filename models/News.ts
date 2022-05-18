@@ -21,7 +21,7 @@ const News = sequelize.define('news', {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  avatar: {
+  image: {
     type: Sequelize.STRING,
     allowNull: true,
   },

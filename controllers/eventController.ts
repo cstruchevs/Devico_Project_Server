@@ -8,6 +8,7 @@ import { Op, where } from 'sequelize/types'
 import moment from 'moment'
 import sequelize from '../db/database'
 import Car from '../models/Car'
+import { uploadFile, getFileStream, deleteFile } from './s3Constroller'
 
 export const postEvent: RequestHandler = async (req, res) => {
   let {
@@ -51,39 +52,46 @@ export const postEvent: RequestHandler = async (req, res) => {
     statusProgress,
   })
 
+  if (req.file) {
+    const file = req.file
+    const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
+    event.update({
+      image: uploadedImage.Key,
+    })
+  }
+
   res.status(StatusCodes.OK).json(event)
 }
 
 export const userRegisterEvent: RequestHandler = async (req, res) => {
-  const { id: userId, eventId: eventId, carId: carId,vehicleClass } = req.body
-  
+  const { id: userId, eventId: eventId, carId: carId, vehicleClass } = req.body
+
   if (!userId || !eventId || !vehicleClass || !carId) {
     throw new BadRequestError('please provide all values')
   }
 
-  const event:any = await EventParticipants.create({ userId, eventId, vehicleClass })
+  const event: any = await EventParticipants.create({ userId, eventId, vehicleClass })
 
-  await Car.update({eventId}, {where: {id: carId}})
+  await Car.update({ eventId }, { where: { id: carId } })
   res
     .status(StatusCodes.OK)
     .json(`User with id ${userId} registered to the event with id ${eventId}`)
 }
 
 export const updateEvent: RequestHandler = async (req, res) => {
-  const { id, name, date, place, discipline, status, series, costOfParticipation, eventInfo } =
-    req.body
+  const id = req.params.id
+  const { name, date, place, discipline, status, series, costOfParticipation, eventInfo } = req.body
 
   if (!id) {
     throw new BadRequestError('Please provide id')
   }
 
-  let event: any = await User.findOne({ where: { id: id } })
+  let event: any = await Event.findOne({ where: { id: id } })
   if (!event) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
-  event = await Event.upsert({
-    id: id,
+  event.update({
     name: name,
     date: date,
     place: place,
@@ -93,6 +101,19 @@ export const updateEvent: RequestHandler = async (req, res) => {
     costOfParticipation: costOfParticipation,
     eventInfo: eventInfo,
   })
+
+  if (req.file) {
+    const file = req.file
+    if (event.image) {
+      const deleteAvatar = await deleteFile(event.image)
+    }
+    const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
+
+    event.update({
+      image: uploadedImage.Key,
+    })
+  }
+
   res.status(StatusCodes.OK).json(event)
 }
 
@@ -123,7 +144,7 @@ export const getAllEvents: RequestHandler = async (req, res) => {
       through: {
         attributes: [],
       },
-    }
+    },
   })
   res.status(StatusCodes.OK).json(events)
 }
@@ -184,9 +205,9 @@ export const getEventsForYear: RequestHandler = async (req, res) => {
   const events = await Event.findAll({
     where: {
       createdAt: {
-        $lt: new Date()
-      }
-    }
+        $lt: new Date(),
+      },
+    },
   })
   res.status(StatusCodes.OK).json(events)
 }

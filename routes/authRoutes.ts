@@ -1,7 +1,7 @@
 import express from 'express'
 import multer from 'multer'
 
-const upload = multer({ dest: 'imgs/' })
+const upload = multer({ dest: 'imgs/avatars' })
 
 const router = express.Router()
 
