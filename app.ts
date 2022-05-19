@@ -58,7 +58,7 @@ LicenseType.hasMany(License, {
 // EventParticipants.hasMany(Car, { foreignKey: 'eventParticipants_id' })
 User.belongsToMany(Event, { through: EventParticipants })
 Event.belongsToMany(User, { through: EventParticipants })
-Event.hasOne(Car, { foreignKey: 'eventId' })
+// Event.hasOne(Car, { foreignKey: 'eventId' })
 
 const port = 5000
 
