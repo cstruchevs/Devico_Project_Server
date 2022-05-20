@@ -15,8 +15,16 @@ const User = sequelize.define('user', {
   password: { type: Sequelize.STRING, allowNull: false },
   phone: { type: Sequelize.STRING, allowNull: true },
   fullName: { type: Sequelize.STRING, allowNull: true },
-  avatar: { type: Sequelize.STRING, allowNull: true },
+  avatarKey: { type: Sequelize.STRING, allowNull: true },
+  avatarUrl: { type: Sequelize.TEXT, allowNull: true },
 })
+
+User.prototype.toJSON =  function () {
+  var values = Object.assign({}, this.get());
+
+  delete values.password;
+  return values;
+}
 
 User.beforeCreate(async (user: any, next) => {
   const salt = await bcrypt.genSalt(10)

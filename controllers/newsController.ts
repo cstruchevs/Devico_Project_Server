@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 import { RequestHandler } from 'express'
 import { BadRequestError } from '../errors'
 import News from '../models/News'
-import { uploadFile, getFileStream, deleteFile } from './s3Constroller'
+import { getFileStream, deleteFile } from './s3Constroller'
 
 export const postNews: RequestHandler = async (req, res) => {
   const { title, date, description } = req.body
@@ -11,11 +11,11 @@ export const postNews: RequestHandler = async (req, res) => {
     throw new BadRequestError('please provide all values')
   }
 
-  let uploadedImage = null
-  if (req.file) {
-    const file = req.file
-    uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
-  }
+  // let uploadedImage = null
+  // if (req.file) {
+  //   const file = req.file
+  //   uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
+  // }
 
   const news: any = await News.create({
     title,
@@ -23,13 +23,13 @@ export const postNews: RequestHandler = async (req, res) => {
     description,
   })
 
-  if (req.file) {
-    const file = req.file
-    const uploadedImage = await uploadFile(file?.path, file?.filename, 'news')
-    news.update({
-      image: uploadedImage.Key,
-    })
-  }
+  // if (req.file) {
+  //   const file = req.file
+  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'news')
+  //   news.update({
+  //     image: uploadedImage.Key,
+  //   })
+  // }
 
   res.status(StatusCodes.OK).json(news)
 }
@@ -49,16 +49,16 @@ export const updateNews: RequestHandler = async (req, res) => {
     description,
   })
 
-  if (req.file) {
-    const file = req.file
-    if (news.image) {
-      const deleteAvatar = await deleteFile(news.image)
-    }
-    const uploadedImage = await uploadFile(file?.path, file?.filename, 'news')
-    news.update({
-      image: uploadedImage.Key,
-    })
-  }
+  // if (req.file) {
+  //   const file = req.file
+  //   if (news.image) {
+  //     const deleteAvatar = await deleteFile(news.image)
+  //   }
+  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'news')
+  //   news.update({
+  //     image: uploadedImage.Key,
+  //   })
+  // }
 
   res.status(StatusCodes.OK).json(news)
 }

@@ -17,6 +17,7 @@ import carsRouter from './routes/carsRoutes'
 import eventsRouter from './routes/eventsRoutes'
 import licenseRouter from './routes/licenseRoutes'
 import userRouter from './routes/userRoutes'
+import imageRouter from './routes/imageRoutes'
 //Models
 import User from './models/User'
 import Car from './models/Car'
@@ -31,7 +32,7 @@ dotenv.config()
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', "http://192.168.56.1:3000"],
+    origin: ['http://localhost:3000', 'http://192.168.56.1:3000'],
   }),
 )
 app.use(express.json())
@@ -41,7 +42,8 @@ app.use('/events', eventsRouter)
 app.use('/cars', auth, carsRouter)
 app.use('/license', auth, licenseRouter)
 app.use(authRouter)
-app.use(userRouter)
+app.use('/user', userRouter)
+app.use('/image', imageRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)

@@ -8,7 +8,7 @@ import { Op, where } from 'sequelize/types'
 import moment from 'moment'
 import sequelize from '../db/database'
 import Car from '../models/Car'
-import { uploadFile, getFileStream, deleteFile } from './s3Constroller'
+import { getFileStream, deleteFile } from './s3Constroller'
 
 export const postEvent: RequestHandler = async (req, res) => {
   let {
@@ -52,13 +52,13 @@ export const postEvent: RequestHandler = async (req, res) => {
     statusProgress,
   })
 
-  if (req.file) {
-    const file = req.file
-    const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
-    event.update({
-      image: uploadedImage.Key,
-    })
-  }
+  // if (req.file) {
+  //   const file = req.file
+  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
+  //   event.update({
+  //     image: uploadedImage.Key,
+  //   })
+  // }
 
   res.status(StatusCodes.OK).json(event)
 }
@@ -102,17 +102,17 @@ export const updateEvent: RequestHandler = async (req, res) => {
     eventInfo: eventInfo,
   })
 
-  if (req.file) {
-    const file = req.file
-    if (event.image) {
-      const deleteAvatar = await deleteFile(event.image)
-    }
-    const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
+  // if (req.file) {
+  //   const file = req.file
+  //   if (event.image) {
+  //     const deleteAvatar = await deleteFile(event.image)
+  //   }
+  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
 
-    event.update({
-      image: uploadedImage.Key,
-    })
-  }
+  //   event.update({
+  //     image: uploadedImage.Key,
+  //   })
+  // }
 
   res.status(StatusCodes.OK).json(event)
 }
