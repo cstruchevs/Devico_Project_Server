@@ -15,7 +15,7 @@ const Event = sequelize.define('event', {
   discipline: { type: Sequelize.STRING, allowNull: false },
   status: { type: Sequelize.STRING, allowNull: false },
   series: { type: Sequelize.STRING, allowNull: false },
-  image: { type: Sequelize.STRING, allowNull: true },
+  imageKey: { type: Sequelize.STRING, allowNull: true },
   costOfParticipation: { type: Sequelize.STRING, allowNull: false },
   eventInfo: { type: Sequelize.STRING, allowNull: false },
   statusProgress: { type: Sequelize.STRING, allowNull: false },

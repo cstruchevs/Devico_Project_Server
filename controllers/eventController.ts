@@ -8,7 +8,7 @@ import { Op, where } from 'sequelize/types'
 import moment from 'moment'
 import sequelize from '../db/database'
 import Car from '../models/Car'
-import { getFileStream, deleteFile } from './s3Constroller'
+import { getFileStream, deleteFile, statusgetImageURL } from './s3Constroller'
 
 export const postEvent: RequestHandler = async (req, res) => {
   let {
@@ -18,6 +18,7 @@ export const postEvent: RequestHandler = async (req, res) => {
     discipline,
     status,
     series,
+    image,
     costOfParticipation,
     eventInfo,
     statusProgress,
@@ -138,7 +139,7 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 }
 
 export const getAllEvents: RequestHandler = async (req, res) => {
-  const events = await Event.findAll({
+  const events: any[] = await Event.findAll({
     include: {
       model: User,
       through: {
@@ -146,7 +147,23 @@ export const getAllEvents: RequestHandler = async (req, res) => {
       },
     },
   })
-  res.status(StatusCodes.OK).json(events)
+
+  let imageUrls = []
+  for(let i = 0; i < events.length; i++) {
+    if(events[i].imageKey) {
+      const {imageUrl} = await statusgetImageURL(events[i].imageKey)
+      imageUrls.push(imageUrl)
+    } else {
+      imageUrls.push(null)
+    }
+  }
+
+  let eventsWithUrls = []
+  for(let i = 0; i < events.length; i++) {
+    eventsWithUrls.push({event: events[i], url: imageUrls[i]})
+  }
+
+  res.status(StatusCodes.OK).json(eventsWithUrls)
 }
 
 export const getOneEvent: RequestHandler = async (req, res) => {
@@ -160,7 +177,13 @@ export const getOneEvent: RequestHandler = async (req, res) => {
   if (!event) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
-  res.status(StatusCodes.OK).json(event)
+
+  let imageUrl = null
+  if(event.imageKey){
+    imageUrl = await (await statusgetImageURL(event.imageKey)).imageUrl
+  }
+
+  res.status(StatusCodes.OK).json({event, url: imageUrl})
 }
 
 export const getEventsForOneUser: RequestHandler = async (req, res) => {

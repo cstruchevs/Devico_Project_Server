@@ -19,8 +19,9 @@ const s3 = new AWS.S3({
 
 
 export const getImageUrl: RequestHandler = async (req, res) => {
+  const folder = req.params.folder
   const key = req.params.key
-  res.json(await statusgetImageURL(key))
+  res.json(await statusgetImageURL(`${folder}/${key}`))
 }
 
 export const getUploadImageUrl: RequestHandler = async (req, res) => {

@@ -6,7 +6,9 @@ import { getImageUrl, getUploadImageUrl, getImage } from '../controllers/s3Const
 
 
 router.route('/uploadUrl/:folder').get(getUploadImageUrl)
-router.route('/iamgeUrl/:key').get(getImageUrl)
+router.route('/iamgeUrl/:folder/:key').get(getImageUrl)
+
+
 router.route('/images/:folder/:key').get(getImage)
 
 export default router

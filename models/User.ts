@@ -16,7 +16,6 @@ const User = sequelize.define('user', {
   phone: { type: Sequelize.STRING, allowNull: true },
   fullName: { type: Sequelize.STRING, allowNull: true },
   avatarKey: { type: Sequelize.STRING, allowNull: true },
-  avatarUrl: { type: Sequelize.TEXT, allowNull: true },
 })
 
 User.prototype.toJSON =  function () {
