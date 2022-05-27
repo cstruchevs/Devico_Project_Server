@@ -26,19 +26,18 @@ User.beforeCreate(async (user: any, next) => {
   }
 })
 
-User.prototype.toJSON =  function () {
-  var values = Object.assign({}, this.get());
+User.prototype.toJSON = function () {
+  var values = Object.assign({}, this.get())
 
-  delete values.password;
-  return values;
+  delete values.password
+  return values
 }
 
 User.beforeUpdate(async (user: any, next) => {
   if (user.changed('password')) {
-    return
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(user.password, salt)
   }
-  const salt = await bcrypt.genSalt(10)
-  user.password = await bcrypt.hash(user.password, salt)
 })
 
 User.prototype.createJWT = function () {
