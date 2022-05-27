@@ -9,6 +9,7 @@ module.exports = {
         password: await bcrypt.hash('semen2012', 10),
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "admin",
       },
       {
         email: 'demo1@gmail.com',

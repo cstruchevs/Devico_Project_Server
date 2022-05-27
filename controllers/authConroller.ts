@@ -9,7 +9,6 @@ import DriversData from '../models/DriversData'
 import nodemailer from 'nodemailer'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { googleAuth } from '../middleware/sideAuth'
-import twofactor from 'node-2fa'
 
 let mail = nodemailer.createTransport({
   port: 587,
@@ -19,59 +18,6 @@ let mail = nodemailer.createTransport({
     pass: 'semenDigital20124265000s',
   },
 })
-
-const newSecret = twofactor.generateSecret({ name: 'Devico App', account: 'cstruchevs' })
-const secretToken = newSecret.secret
-
-export const adminLogin: RequestHandler = async (req, res) => {
-  const { email, password } = req.body
-  if (!email || !password) {
-    throw new BadRequestError('Please provide all values')
-  }
-  const user: any = await User.findOne({ where: { email: email } })
-
-  if (!user) {
-    throw new UnAuthenticatedError('Invalid Credentials')
-  }
-
-  if (user.status != 'admmin') {
-    throw new UnAuthenticatedError('Invalid Credentials')
-  }
-
-  const isPasswordCorrect = await user.comparePassword(password)
-  if (!isPasswordCorrect) {
-    throw new UnAuthenticatedError('Invalid Credentials')
-  }
-
-  const newToken = twofactor.generateToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W')
-
-  let mailOptions = {
-    from: 'cstruchevs@gmail.com',
-    to: `${email}`,
-    subject: 'Devico verification code',
-    text: `Devico verification code`,
-    html: `<p>It is your verification code - ${newToken}</p>`,
-  }
-
-  mail.sendMail(mailOptions, function (error: any, info: any) {
-    if (error) {
-      console.log(error)
-    } else {
-      console.log('Email sent: ' + info.response)
-    }
-  })
-
-  const token = user.createJWT()
-  res.status(StatusCodes.OK).json({ user, token })
-}
-
-export const adminVerificationToken: RequestHandler = async (req, res) => {
-  const { token } = req.body
-  const check = twofactor.verifyToken(secretToken, token);
-  if(check != null) {
-    res.status(200).json({msg: 'Token verified'})
-  }
-}
 
 export const googleRegister: RequestHandler = async (req, res) => {
   const authHeader = req.headers.authorization
