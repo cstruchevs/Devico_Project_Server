@@ -5,6 +5,7 @@ import multer from 'multer'
 const upload = multer({ dest: 'imgs/events' })
 
 import { postEvent, userRegisterEvent, deleteEvent, updateEvent, getAllEvents, getOneEvent, getEventsForOneUser, getEventsForYear, getUsersForOneEvent} from '../controllers/eventController'
+import auth from '../middleware/auth'
 
 router.route('/').post(upload.single('image'), postEvent)
 router.route('/').get(getAllEvents)

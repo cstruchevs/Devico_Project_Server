@@ -11,11 +11,19 @@ const User = sequelize.define('user', {
     allowNull: false,
     primaryKey: true,
   },
-  email: { type: Sequelize.STRING, allowNull: false, unique: true },
-  password: { type: Sequelize.STRING, allowNull: false },
+  email: { type: Sequelize.STRING, allowNull: false },
+  password: { type: Sequelize.STRING, allowNull: true },
   phone: { type: Sequelize.STRING, allowNull: true },
   fullName: { type: Sequelize.STRING, allowNull: true },
+  status: { type: Sequelize.STRING, allowNull: true }
   avatarKey: { type: Sequelize.STRING, allowNull: true },
+})
+
+User.beforeCreate(async (user: any, next) => {
+  if (user.password) {
+    const salt = await bcrypt.genSalt(10)
+    user.password = await bcrypt.hash(user.password, salt)
+  }
 })
 
 User.prototype.toJSON =  function () {
@@ -24,11 +32,6 @@ User.prototype.toJSON =  function () {
   delete values.password;
   return values;
 }
-
-User.beforeCreate(async (user: any, next) => {
-  const salt = await bcrypt.genSalt(10)
-  user.password = await bcrypt.hash(user.password, salt)
-})
 
 User.beforeUpdate(async (user: any, next) => {
   if (user.changed('password')) {
