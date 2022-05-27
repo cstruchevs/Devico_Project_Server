@@ -53,14 +53,6 @@ export const postEvent: RequestHandler = async (req, res) => {
     statusProgress,
   })
 
-  // if (req.file) {
-  //   const file = req.file
-  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
-  //   event.update({
-  //     image: uploadedImage.Key,
-  //   })
-  // }
-
   res.status(StatusCodes.OK).json(event)
 }
 
@@ -102,18 +94,6 @@ export const updateEvent: RequestHandler = async (req, res) => {
     costOfParticipation: costOfParticipation,
     eventInfo: eventInfo,
   })
-
-  // if (req.file) {
-  //   const file = req.file
-  //   if (event.image) {
-  //     const deleteAvatar = await deleteFile(event.image)
-  //   }
-  //   const uploadedImage = await uploadFile(file?.path, file?.filename, 'events')
-
-  //   event.update({
-  //     image: uploadedImage.Key,
-  //   })
-  // }
 
   res.status(StatusCodes.OK).json(event)
 }
