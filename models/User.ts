@@ -15,7 +15,7 @@ const User = sequelize.define('user', {
   password: { type: Sequelize.STRING, allowNull: true },
   phone: { type: Sequelize.STRING, allowNull: true },
   fullName: { type: Sequelize.STRING, allowNull: true },
-  status: { type: Sequelize.STRING, allowNull: true }
+  status: { type: Sequelize.STRING, allowNull: true },
   avatarKey: { type: Sequelize.STRING, allowNull: true },
 })
 
