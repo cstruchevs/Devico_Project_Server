@@ -16,6 +16,7 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/d3eee0da-6526-4a1d-8fbd-2a30cea1590f',
       },
       {
         name: 'Honda Indy Grand Prix of Alabama',
@@ -30,6 +31,7 @@ module.exports = {
         statusProgress: 'Finished',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/ad59610f-40bb-4577-b574-c0e9559538e5',
       },
       {
         name: 'The NoBurgerring 7 hour 2022',
@@ -44,6 +46,7 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/e21f468f-6ab1-4942-aca6-7859689e8939',
       },
       {
         name: 'Goodyear 400',
@@ -58,6 +61,8 @@ module.exports = {
         statusProgress: 'Finished',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/a383f074-8db6-4f9c-936d-87dfaad045d6',
+        // imageKey: "events/5ae24455-7882-47af-8fd4-4d17eb86e2df",
       },
       {
         name: 'GMR Grand Prix',
@@ -72,6 +77,8 @@ module.exports = {
         statusProgress: 'Finished',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/f867eb38-38d7-4a04-a61c-7dd919d6d4e3',
+        // imageKey: "events/a6a48f3f-ab1d-45dc-ac96-0743cad73088",
       },
       {
         name: 'AdventHealth 400',
@@ -86,10 +93,11 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/f867eb38-38d7-4a04-a61c-7dd919d6d4e3',
       },
       {
         name: 'SpeedyCash.com 220',
-        date: new Date(Date.now() + ( 3600 * 1000 * 24)),
+        date: new Date(Date.now() + 3600 * 1000 * 24),
         place: 'Texas Motor Speedway',
         discipline: 'Nascar Truck Series',
         status: 'Aliquam mi sapien',
@@ -100,10 +108,12 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/555a88f4-c220-4fb0-a7fd-cc59f5919ba1',
+        // imageKey: "events/c29c6bef-6e85-454a-8656-6f628821eb27",
       },
       {
         name: 'MotoAmerica Superbikes',
-        date: new Date(Date.now() + ( 3600 * 1000 * 24)*2),
+        date: new Date(Date.now() + 3600 * 1000 * 24 * 2),
         place: 'Virginia International Raceway',
         discipline: 'Moto1',
         status: 'Curabitur molestie',
@@ -114,10 +124,12 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/3e4bebb3-3727-4e18-8590-b5cca5552cf0',
+        // imageKey: "events/8df55d8a-ff98-4ee0-b3ce-188b304c5c92",
       },
       {
         name: 'SRS Distribution 250',
-        date: new Date(Date.now() + ( 3600 * 1000 * 24)*4),
+        date: new Date(Date.now() + 3600 * 1000 * 24 * 4),
         place: 'Texas Motor Speedway',
         discipline: 'Nascar Xfinity Series',
         status: 'Nulla faucibus diam',
@@ -128,10 +140,11 @@ module.exports = {
         statusProgress: 'Upcoming',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/3aa94725-f515-44d8-9191-9e1499411aa6',
       },
       {
         name: 'NASCAR All-Star Race',
-        date: new Date(Date.now() - ( 3600 * 1000 * 24)),
+        date: new Date(Date.now() - 3600 * 1000 * 24),
         place: 'Texas Motor Speedway',
         discipline: 'Nascar Cup Series',
         status: 'Fusce sit amet',
@@ -142,6 +155,7 @@ module.exports = {
         statusProgress: 'Finished',
         createdAt: new Date(),
         updatedAt: new Date(),
+        imageKey: 'events/5ac9aeb3-ac29-4594-b9d3-33a024d27f8f',
       },
     ])
   },
