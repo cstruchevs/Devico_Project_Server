@@ -16,6 +16,8 @@ import authRouter from './routes/authRoutes'
 import carsRouter from './routes/carsRoutes'
 import eventsRouter from './routes/eventsRoutes'
 import licenseRouter from './routes/licenseRoutes'
+import userRouter from './routes/userRoutes'
+import imageRouter from './routes/imageRoutes'
 //Models
 import User from './models/User'
 import Car from './models/Car'
@@ -30,7 +32,7 @@ dotenv.config()
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'http://192.168.56.1:3000'],
   }),
 )
 app.use(express.json())
@@ -40,6 +42,8 @@ app.use('/events', eventsRouter)
 app.use('/cars', carsRouter)
 app.use('/license', licenseRouter)
 app.use(authRouter)
+app.use('/user', userRouter)
+app.use('/image', imageRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
@@ -56,14 +60,14 @@ LicenseType.hasMany(License, {
 // EventParticipants.hasMany(Car, { foreignKey: 'eventParticipants_id' })
 User.belongsToMany(Event, { through: EventParticipants })
 Event.belongsToMany(User, { through: EventParticipants })
-Event.hasOne(Car, { foreignKey: 'eventId' })
+// Event.hasOne(Car, { foreignKey: 'eventId' })
 
-const port = process.env.PORT || 5000
+const port = 5000
 
 const start = (): void => {
   sequelize
-    .sync({ force: true })
-    // .sync()
+    // .sync({ force: true })
+    .sync()
     .then(() => {
       app.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)

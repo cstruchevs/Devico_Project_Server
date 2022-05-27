@@ -16,6 +16,7 @@ const User = sequelize.define('user', {
   phone: { type: Sequelize.STRING, allowNull: true },
   fullName: { type: Sequelize.STRING, allowNull: true },
   status: { type: Sequelize.STRING, allowNull: true }
+  avatarKey: { type: Sequelize.STRING, allowNull: true },
 })
 
 User.beforeCreate(async (user: any, next) => {
@@ -24,6 +25,13 @@ User.beforeCreate(async (user: any, next) => {
     user.password = await bcrypt.hash(user.password, salt)
   }
 })
+
+User.prototype.toJSON =  function () {
+  var values = Object.assign({}, this.get());
+
+  delete values.password;
+  return values;
+}
 
 User.beforeUpdate(async (user: any, next) => {
   if (user.changed('password')) {
