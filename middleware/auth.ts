@@ -16,8 +16,8 @@ const auth: RequestHandler = async (req: any, res, next) => {
 
     next()
   } catch (error) {
-    res.status(401)
-    throw new UnAuthenticatedError('Authentication Invalid')
+    throw res.status(401)
+    // throw new UnAuthenticatedError('Authentication Invalid')
   }
 }
 

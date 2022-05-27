@@ -37,8 +37,8 @@ app.use(express.json())
 
 app.use('/news', newsRouter)
 app.use('/events', eventsRouter)
-app.use('/cars', auth, carsRouter)
-app.use('/license', auth, licenseRouter)
+app.use('/cars', carsRouter)
+app.use('/license', licenseRouter)
 app.use(authRouter)
 
 app.use(notFoundMiddleware)
