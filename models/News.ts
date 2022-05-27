@@ -2,7 +2,7 @@ import Sequelize from 'sequelize'
 
 import sequelize from '../db/database'
 
-const News = sequelize.define("news", {
+const News = sequelize.define('news', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -10,17 +10,21 @@ const News = sequelize.define("news", {
     primaryKey: true,
   },
   title: {
-      type: Sequelize.STRING,
-      allowNull:false
+    type: Sequelize.STRING,
+    allowNull: false,
   },
   date: {
-      type: Sequelize.DATE,
-      allowNull:false
+    type: Sequelize.DATE,
+    allowNull: false,
   },
   description: {
-      type: Sequelize.STRING,
-      allowNull:false
-  }
-});
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  image: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+})
 
 export default News
