@@ -9,6 +9,7 @@ import DriversData from '../models/DriversData'
 import nodemailer from 'nodemailer'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { googleAuth } from '../middleware/sideAuth'
+import twofactor from 'node-2fa'
 
 let mail = nodemailer.createTransport({
   port: 587,
@@ -18,6 +19,60 @@ let mail = nodemailer.createTransport({
     pass: 'semenDigital20124265000s',
   },
 })
+
+export const twoFactorAuth: RequestHandler = async (req, res) => {
+  const { email, password } = req.body
+  if (!email || !password) {
+    throw new BadRequestError('Please provide all values')
+  }
+  const user: any = await User.findOne({ where: { email: email } })
+
+  if (!user) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  if (user.status != 'admin') {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  const isPasswordCorrect = await user.comparePassword(password)
+
+  if (!isPasswordCorrect) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  const newSecret = twofactor.generateSecret({ name: 'My Awesome App', account: 'johndoe' })
+  const newToken = twofactor.generateToken('XDQXYCP5AC6FA32FQXDGJSPBIDYNKK5W')
+
+  let mailOptions = {
+    from: 'cstruchevs@gmail.com',
+    to: `${email}`,
+    subject: 'Two factor code',
+    text: `Copy it to Devico`,
+    html: `<p>${newToken}</p>`,
+  }
+
+  mail.sendMail(mailOptions, function (error: any, info: any) {
+    if (error) {
+      console.log(error)
+    } else {
+      console.log('Email sent: ' + info.response)
+    }
+  })
+
+  const token = user.createJWT()
+
+  res.status(200).json({ user, token, secretToken: newSecret })
+}
+
+export const twoFactorAuthVerify: RequestHandler = async (req, res) => {
+  const { secretToken, code } = req.body
+  const check = twofactor.verifyToken(secretToken, code)
+  if (!check) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+  res.status(200)
+}
 
 export const googleRegister: RequestHandler = async (req, res) => {
   const authHeader = req.headers.authorization
@@ -156,7 +211,6 @@ export const updateUser: RequestHandler = async (req, res) => {
   res.status(StatusCodes.OK).json({ user, token })
 }
 
-
 export const recoverPassword: RequestHandler = async (req, res) => {
   const { email } = req.body
 
@@ -194,7 +248,6 @@ export const recoverPassword: RequestHandler = async (req, res) => {
 
 export const recoverPasswordVerify: RequestHandler = async (req, res) => {
   const { id, token } = req.params
-  console.log('---------------------------------------------------')
   console.log(token)
   if (!id && !token) {
     throw new BadRequestError('Please provide email')
@@ -205,5 +258,5 @@ export const recoverPasswordVerify: RequestHandler = async (req, res) => {
     // res.status(400).send(error);
     throw new UnAuthenticatedError('Authentication Invalid')
   }
-  res.status(StatusCodes.OK).json("Verified")
+  res.status(StatusCodes.OK).json('Verified')
 }
