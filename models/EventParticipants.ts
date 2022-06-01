@@ -12,7 +12,6 @@ const EventParticipants = sequelize.define('event-participants', {
     allowNull: false,
     primaryKey: true,
   },
-  vehicleClass: { type: Sequelize.STRING, allowNull: false },
   userId: {
     type: Sequelize.INTEGER,
     references: {
@@ -26,6 +25,21 @@ const EventParticipants = sequelize.define('event-participants', {
       model: Event,
       key: 'id',
     },
+  },
+  carId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: Car,
+      key: 'id',
+    },
+  },
+  vehicleClass: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  desiredPartNumber: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
   },
 })
 

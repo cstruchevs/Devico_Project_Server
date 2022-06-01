@@ -9,7 +9,7 @@ module.exports = {
         place: 'Kharkiv. Maidan constitution',
         discipline: 'Digital motorsport.',
         status: 'National Seria',
-        series: 'National Digital Time Attack Series (NS-CTA) 2022',
+        series: 'National Digital Time Attack Series 2022',
         costOfParticipation: '50$',
         eventInfo:
           'Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for "lorem ipsum" will uncover many web sites still in their infancy. ',
@@ -62,7 +62,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         imageKey: 'events/a383f074-8db6-4f9c-936d-87dfaad045d6',
-        // imageKey: "events/5ae24455-7882-47af-8fd4-4d17eb86e2df",
       },
       {
         name: 'GMR Grand Prix',
@@ -78,11 +77,10 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         imageKey: 'events/f867eb38-38d7-4a04-a61c-7dd919d6d4e3',
-        // imageKey: "events/a6a48f3f-ab1d-45dc-ac96-0743cad73088",
       },
       {
         name: 'AdventHealth 400',
-        date: new Date(),
+        date: new Date(Date.now() - 3600 * 1000 * 24),
         place: 'Kansas Speedway',
         discipline: 'Nascar Cup Series',
         status: 'Praesent molestie',
@@ -109,7 +107,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         imageKey: 'events/555a88f4-c220-4fb0-a7fd-cc59f5919ba1',
-        // imageKey: "events/c29c6bef-6e85-454a-8656-6f628821eb27",
       },
       {
         name: 'MotoAmerica Superbikes',
@@ -125,7 +122,6 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
         imageKey: 'events/3e4bebb3-3727-4e18-8590-b5cca5552cf0',
-        // imageKey: "events/8df55d8a-ff98-4ee0-b3ce-188b304c5c92",
       },
       {
         name: 'SRS Distribution 250',
