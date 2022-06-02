@@ -57,18 +57,26 @@ export const postEvent: RequestHandler = async (req, res) => {
 }
 
 export const userRegisterEvent: RequestHandler = async (req, res) => {
-  const { id: userId, eventId: eventId, carId: carId, vehicleClass } = req.body
+  const {
+    id: userId,
+    eventId: eventId,
+    carId: carId,
+    vehicleClass: vehicleClass,
+    desiredPartNumber: desiredPartNumber,
+  } = req.body
 
   if (!userId || !eventId || !vehicleClass || !carId) {
     throw new BadRequestError('please provide all values')
   }
+  const event: any = await EventParticipants.create({
+    userId,
+    eventId,
+    vehicleClass,
+    carId,
+    desiredPartNumber,
+  })
 
-  const event: any = await EventParticipants.create({ userId, eventId, vehicleClass })
-
-  await Car.update({ eventId }, { where: { id: carId } })
-  res
-    .status(StatusCodes.OK)
-    .json(`User with id ${userId} registered to the event with id ${eventId}`)
+  res.status(StatusCodes.OK).json(event)
 }
 
 export const updateEvent: RequestHandler = async (req, res) => {
@@ -122,16 +130,20 @@ export const getAllEvents: RequestHandler = async (req, res) => {
   const events: any[] = await Event.findAll({
     include: {
       model: User,
+      attributes: ['fullName'],
       through: {
-        attributes: [],
+        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
       },
     },
   })
 
   let imageUrls = []
-  for(let i = 0; i < events.length; i++) {
-    if(events[i].imageKey) {
-      const {imageUrl} = await statusgetImageURL(events[i].imageKey)
+  for (let i = 0; i < events.length; i++) {
+    for (let j = 0; j < events[i].users.length; j++) {
+      events[i].users[j].carModel = await Car.findOne({ where: { id: 1 } })
+    }
+    if (events[i].imageKey) {
+      const { imageUrl } = await statusgetImageURL(events[i].imageKey)
       imageUrls.push(imageUrl)
     } else {
       imageUrls.push(null)
@@ -139,8 +151,41 @@ export const getAllEvents: RequestHandler = async (req, res) => {
   }
 
   let eventsWithUrls = []
-  for(let i = 0; i < events.length; i++) {
-    eventsWithUrls.push({event: events[i], url: imageUrls[i]})
+  for (let i = 0; i < events.length; i++) {
+    eventsWithUrls.push({ event: events[i], url: imageUrls[i] })
+  }
+
+  res.status(StatusCodes.OK).json(eventsWithUrls)
+}
+
+export const getYearsEvents: RequestHandler = async (req, res) => {
+  const events: any[] = await Event.findAll({
+    where: sequelize.where(sequelize.fn('YEAR', sequelize.col('date')), new Date().getUTCFullYear()),
+    include: {
+      model: User,
+      attributes: ['fullName'],
+      through: {
+        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
+      },
+    },
+  })
+
+  let imageUrls = []
+  for (let i = 0; i < events.length; i++) {
+    for (let j = 0; j < events[i].users.length; j++) {
+      events[i].users[j].carModel = await Car.findOne({ where: { id: 1 } })
+    }
+    if (events[i].imageKey) {
+      const { imageUrl } = await statusgetImageURL(events[i].imageKey)
+      imageUrls.push(imageUrl)
+    } else {
+      imageUrls.push(null)
+    }
+  }
+
+  let eventsWithUrls = []
+  for (let i = 0; i < events.length; i++) {
+    eventsWithUrls.push({ event: events[i], url: imageUrls[i] })
   }
 
   res.status(StatusCodes.OK).json(eventsWithUrls)
@@ -153,17 +198,28 @@ export const getOneEvent: RequestHandler = async (req, res) => {
   }
   const event: any = await Event.findOne({
     where: { id: id },
+    include: {
+      model: User,
+      attributes: ['fullName'],
+      through: {
+        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
+      },
+    },
   })
   if (!event) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
   let imageUrl = null
-  if(event.imageKey){
+  if (event.imageKey) {
     imageUrl = await (await statusgetImageURL(event.imageKey)).imageUrl
   }
 
-  res.status(StatusCodes.OK).json({event, url: imageUrl})
+  for (let j = 0; j < event.users.length; j++) {
+    event.users[j].carModel = await Car.findOne({ where: { id: 1 } })
+  }
+
+  res.status(StatusCodes.OK).json({ event, url: imageUrl })
 }
 
 export const getEventsForOneUser: RequestHandler = async (req, res) => {
