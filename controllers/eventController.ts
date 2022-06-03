@@ -127,21 +127,10 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 }
 
 export const getAllEvents: RequestHandler = async (req, res) => {
-  const events: any[] = await Event.findAll({
-    include: {
-      model: User,
-      attributes: ['fullName'],
-      through: {
-        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
-      },
-    },
-  })
+  const events: any[] = await Event.findAll()
 
   let imageUrls = []
   for (let i = 0; i < events.length; i++) {
-    for (let j = 0; j < events[i].users.length; j++) {
-      events[i].users[j].carModel = await Car.findOne({ where: { id: 1 } })
-    }
     if (events[i].imageKey) {
       const { imageUrl } = await statusgetImageURL(events[i].imageKey)
       imageUrls.push(imageUrl)
@@ -160,7 +149,10 @@ export const getAllEvents: RequestHandler = async (req, res) => {
 
 export const getYearsEvents: RequestHandler = async (req, res) => {
   const events: any[] = await Event.findAll({
-    where: sequelize.where(sequelize.fn('YEAR', sequelize.col('date')), new Date().getUTCFullYear()),
+    where: sequelize.where(
+      sequelize.fn('YEAR', sequelize.col('date')),
+      new Date().getUTCFullYear(),
+    ),
     include: {
       model: User,
       attributes: ['fullName'],
@@ -196,30 +188,29 @@ export const getOneEvent: RequestHandler = async (req, res) => {
   if (!id) {
     throw new BadRequestError('Please provide id')
   }
-  const event: any = await Event.findOne({
-    where: { id: id },
-    include: {
-      model: User,
-      attributes: ['fullName'],
-      through: {
-        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
-      },
-    },
-  })
-  if (!event) {
+
+  const event: any = await sequelize.query(
+    `SELECT DISTINCT devico_project.events.*, 
+    GROUP_CONCAT('{ "carModel": "', devico_project.cars.model, '", "userName": "', devico_project.users.fullName, '" , "partNumber": "',  devico_project.event_participants.desiredPartNumber, '" }' SEPARATOR ';') AS eventParicipants
+    FROM devico_project.events 
+    LEFT OUTER JOIN devico_project.event_participants on devico_project.events.id = devico_project.event_participants.eventId
+    LEFT OUTER JOIN devico_project.users on devico_project.event_participants.userId = devico_project.users.id
+    LEFT OUTER JOIN devico_project.cars on devico_project.event_participants.carId = devico_project.cars.id
+    WHERE devico_project.events.id = ${id}
+    GROUP BY devico_project.events.id
+    `,
+  )
+
+  if (!event[0][0]) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
   let imageUrl = null
-  if (event.imageKey) {
-    imageUrl = await (await statusgetImageURL(event.imageKey)).imageUrl
+  if (event[0][0].imageKey) {
+    imageUrl = await (await statusgetImageURL(event[0][0].imageKey)).imageUrl
   }
 
-  for (let j = 0; j < event.users.length; j++) {
-    event.users[j].carModel = await Car.findOne({ where: { id: 1 } })
-  }
-
-  res.status(StatusCodes.OK).json({ event, url: imageUrl })
+  res.status(StatusCodes.OK).json({ event: event[0][0], url: imageUrl })
 }
 
 export const getEventsForOneUser: RequestHandler = async (req, res) => {

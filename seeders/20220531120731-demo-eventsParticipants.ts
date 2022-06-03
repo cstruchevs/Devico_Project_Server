@@ -2,7 +2,7 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    return queryInterface.bulkInsert('`event-participants`', [
+    return queryInterface.bulkInsert('event_participants', [
       {
         vehicleClass: 'Honda Civic',
         userId: 1,
@@ -43,6 +43,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    return queryInterface.bulkDelete('`event-participants`', null, {})
+    return queryInterface.bulkDelete('event_participants', null, {})
   }
 };

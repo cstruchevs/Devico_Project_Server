@@ -57,7 +57,6 @@ LicenseType.hasMany(License, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 })
-// EventParticipants.hasMany(Car, { foreignKey: 'eventParticipants_id' })
 User.belongsToMany(Event, { through: EventParticipants })
 Event.belongsToMany(User, { through: EventParticipants })
 // Event.hasOne(Car, { foreignKey: 'eventId' })
