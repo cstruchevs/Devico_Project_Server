@@ -139,9 +139,6 @@ export const getAllEvents: RequestHandler = async (req, res) => {
 
   let imageUrls = []
   for (let i = 0; i < events.length; i++) {
-    for (let j = 0; j < events[i].users.length; j++) {
-      events[i].users[j].carModel = await Car.findOne({ where: { id: 1 } })
-    }
     if (events[i].imageKey) {
       const { imageUrl } = await statusgetImageURL(events[i].imageKey)
       imageUrls.push(imageUrl)
@@ -172,9 +169,6 @@ export const getYearsEvents: RequestHandler = async (req, res) => {
 
   let imageUrls = []
   for (let i = 0; i < events.length; i++) {
-    for (let j = 0; j < events[i].users.length; j++) {
-      events[i].users[j].carModel = await Car.findOne({ where: { id: 1 } })
-    }
     if (events[i].imageKey) {
       const { imageUrl } = await statusgetImageURL(events[i].imageKey)
       imageUrls.push(imageUrl)
