@@ -15,9 +15,12 @@ export const getUserInfo: RequestHandler = async (req, res) => {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
-  const {imageUrl} = await statusgetImageURL(user.avatarKey)
-
-  res.status(StatusCodes.OK).json({ data: user, image: imageUrl })
+  if (user.avatarKey) {
+    const { imageUrl } = await statusgetImageURL(user.avatarKey)
+    res.status(StatusCodes.OK).json({ data: user, image: imageUrl })
+  } else {
+    res.status(StatusCodes.OK).json({ data: user, image: null })
+  }
 }
 
 export const updateUserAvatar: RequestHandler = async (req, res) => {
@@ -29,16 +32,14 @@ export const updateUserAvatar: RequestHandler = async (req, res) => {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
-  if(user.avatarKey) {
+  if (user.avatarKey) {
     await deleteFile(user.avatarKey)
   }
 
-  const {imageUrl} = await statusgetImageURL(key)
+  const { imageUrl } = await statusgetImageURL(key)
 
-  user.update(
-    { avatarKey: key},
-  )
-  res.json({user, imageUrl})
+  user.update({ avatarKey: key })
+  res.json({ user, imageUrl })
 }
 
 export const updateUser: RequestHandler = async (req, res) => {
