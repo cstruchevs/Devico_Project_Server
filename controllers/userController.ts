@@ -15,9 +15,22 @@ export const getUserInfo: RequestHandler = async (req, res) => {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
-  const {imageUrl} = await statusgetImageURL(user.avatarKey)
+  const { imageUrl } = await statusgetImageURL(user.avatarKey)
 
   res.status(StatusCodes.OK).json({ data: user, image: imageUrl })
+}
+
+export const getAllUsers: RequestHandler = async (req, res) => {
+  const page:number = Number(req.params.page)
+  const limit:number = Number(req.params.limit)
+  const offset = page * 10
+  const users: any = await User.findAll({ include: ['driversdata'], offset, limit })
+  const count = await User.count()
+  if (!users) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  res.status(StatusCodes.OK).json({ data: {users, count} })
 }
 
 export const updateUserAvatar: RequestHandler = async (req, res) => {
@@ -29,16 +42,14 @@ export const updateUserAvatar: RequestHandler = async (req, res) => {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
-  if(user.avatarKey) {
+  if (user.avatarKey) {
     await deleteFile(user.avatarKey)
   }
 
-  const {imageUrl} = await statusgetImageURL(key)
+  const { imageUrl } = await statusgetImageURL(key)
 
-  user.update(
-    { avatarKey: key},
-  )
-  res.json({user, imageUrl})
+  user.update({ avatarKey: key })
+  res.json({ user, imageUrl })
 }
 
 export const updateUser: RequestHandler = async (req, res) => {
@@ -66,11 +77,11 @@ export const updateUser: RequestHandler = async (req, res) => {
 }
 
 export const deleteUser: RequestHandler = async (req, res) => {
-  const { email } = req.body
+  const  email  = req.params.email
   if (!email) {
     throw new BadRequestError('Please provide email')
   }
-  await User.destroy({ where: { email: email } })
+  await User.destroy({ where: { email } })
 
   res.status(StatusCodes.OK).json(`Deleted user with email ${email}`)
 }
@@ -94,9 +105,23 @@ export const updateDriversData: RequestHandler = async (req, res) => {
     throw new BadRequestError('Please provide all values')
   }
 
+  const user: any = await User.findOne({ where: {} })
+
   const driversData: any = await DriversData.findOne({ where: { user_id: id } })
   if (!driversData) {
-    throw new UnAuthenticatedError('Invalid Credentials')
+    await DriversData.create({
+      city: city,
+      dob: dob,
+      regAdress: regAdress,
+      driverLicense: driverLicense,
+      representiveFullName: representiveFullName,
+      representiveLicense: representiveLicense,
+      idNumber: idNumber,
+      sportDriverLicense: sportDriverLicense,
+      nickname: nickname,
+      phone: phone,
+      user_id: id,
+    })
   }
 
   driversData.update(
@@ -126,13 +151,12 @@ export const getUsersDriversData: RequestHandler = async (req, res) => {
 
   const user: any = await User.findOne({
     where: { id: id },
+    include: ['driversdata'],
   })
 
   if (!user) {
     throw new BadRequestError('Please correct id')
   }
 
-  const driversData: any = await DriversData.findOne({ where: { user_id: id } })
-
-  res.status(StatusCodes.OK).json(driversData)
+  res.status(StatusCodes.OK).json(user['driversdata'])
 }

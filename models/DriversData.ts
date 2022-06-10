@@ -2,7 +2,7 @@ import Sequelize from "sequelize";
 
 import sequelize from "../db/database";
 
-const DriversData = sequelize.define("driversData", {
+const DriversData = sequelize.define("driversdata", {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
