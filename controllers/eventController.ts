@@ -127,7 +127,7 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 }
 
 export const getAllEvents: RequestHandler = async (req, res) => {
-  const events: any[] = await Event.findAll()
+  const events: any[] = await Event.findAll({ order: [['date', 'ASC']] })
 
   let imageUrls = []
   for (let i = 0; i < events.length; i++) {
@@ -153,6 +153,7 @@ export const getYearsEvents: RequestHandler = async (req, res) => {
       sequelize.fn('YEAR', sequelize.col('date')),
       new Date().getUTCFullYear(),
     ),
+    order: [['date', 'ASC']],
     include: {
       model: User,
       attributes: ['fullName'],
@@ -216,16 +217,37 @@ export const getEventsForOneUser: RequestHandler = async (req, res) => {
     throw new BadRequestError('Please provide id')
   }
 
-  const events = await User.findOne({
+  const events: any = await User.findOne({
     where: { id: id },
+    attributes: [],
     include: {
       model: Event,
+      where: sequelize.where(
+        sequelize.fn('YEAR', sequelize.col('date')),
+        new Date().getUTCFullYear(),
+      ),
       through: {
         attributes: [],
       },
     },
   })
-  res.status(StatusCodes.OK).json(events)
+
+  let imageUrls = []
+  for (let i = 0; i < events.events.length; i++) {
+    if (events.events[i].imageKey) {
+      const { imageUrl } = await statusgetImageURL(events.events[i].imageKey)
+      imageUrls.push(imageUrl)
+    } else {
+      imageUrls.push(null)
+    }
+  }
+
+  let eventsWithUrls = []
+  for (let i = 0; i < events.events.length; i++) {
+    eventsWithUrls.push({ event: events.events[i], url: imageUrls[i] })
+  }
+
+  res.status(StatusCodes.OK).json({ events: eventsWithUrls })
 }
 
 export const getUsersForOneEvent: RequestHandler = async (req, res) => {
@@ -255,6 +277,21 @@ export const getMonthEvents: RequestHandler = async (req, res) => {
       sequelize.where(sequelize.fn('MONTH', sequelize.col('date')), month),
     ],
     attributes: ['date', 'name'],
+    order: [['date', 'ASC']],
+  })
+
+  res.status(StatusCodes.OK).json(events)
+}
+
+export const getUpcomingEvents: RequestHandler = async (req, res) => {
+  const sevenDaysFromNow = new Date(new Date().setDate(new Date().getDate() + 7))
+  const events: any[] = await Event.findAll({
+    where: {
+      date: {
+        $gte: new Date(),
+      },
+    },
+    order: [['date', 'ASC']],
   })
 
   res.status(StatusCodes.OK).json(events)
@@ -263,6 +300,7 @@ export const getMonthEvents: RequestHandler = async (req, res) => {
 export const getAllEventsCalendar: RequestHandler = async (req, res) => {
   const events: any[] = await Event.findAll({
     attributes: ['date', 'name'],
+    order: [['date', 'ASC']],
   })
 
   res.status(StatusCodes.OK).json(events)

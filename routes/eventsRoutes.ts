@@ -13,11 +13,13 @@ import {
   getYearsEvents,
   getAllEventsCalendar,
   getMonthEvents,
+  getUpcomingEvents,
 } from '../controllers/eventController'
 import auth from '../middleware/auth'
 
 router.route('/').post(postEvent)
 router.route('/').get(getAllEvents)
+router.route('/upcoming').get(getUpcomingEvents)
 router.route('/yearsEvents').get(getYearsEvents)
 router.route('/calendar').get(getAllEventsCalendar)
 router.route('/monthEvents/:month/:year').get(getMonthEvents)
