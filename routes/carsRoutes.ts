@@ -5,8 +5,7 @@ import { deleteCar, getAllCars, updateCar, postCar } from '../controllers/carsCo
 import auth from '../middleware/auth'
 
 router.route('/post').post(auth, postCar)
-router.route('/update').patch(updateCar)
-router.route('/:id').delete(deleteCar).get(getAllCars)
-
+router.route('/:id').get(getAllCars).patch(updateCar)
+router.route('/:id/:token').delete(deleteCar)
 
 export default router

@@ -48,7 +48,7 @@ app.use('/image', imageRouter)
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
-User.hasOne(DriversData, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+User.hasMany(DriversData, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 User.hasMany(Car, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 User.belongsToMany(License, { through: LicenseMembers })
 License.belongsToMany(User, { through: LicenseMembers })

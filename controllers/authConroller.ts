@@ -194,8 +194,6 @@ export const recoverPassword: RequestHandler = async (req, res) => {
 
 export const recoverPasswordVerify: RequestHandler = async (req, res) => {
   const { id, token } = req.params
-  console.log('---------------------------------------------------')
-  console.log(token)
   if (!id && !token) {
     throw new BadRequestError('Please provide email')
   }
