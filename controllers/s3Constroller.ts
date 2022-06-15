@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk'
 import { RequestHandler } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import dotenv from 'dotenv'
+import axios from "axios"
 dotenv.config()
 
 const bucketName: string = process.env['AWS_BUCKET_NAME'] as string
@@ -16,7 +17,6 @@ const s3 = new AWS.S3({
   accessKeyId,
   secretAccessKey,
 })
-
 
 export const getImageUrl: RequestHandler = async (req, res) => {
   const folder = req.params.folder
@@ -52,6 +52,25 @@ export const statusgetImageURL = async (key: string) => {
     imageUrl: imageUrl,
   }
 }
+export const getImageUrlArray: RequestHandler = async (req, res) => {
+  res.json(
+    await statusgetImageURLArray([
+      'events/ad59610f-40bb-4577-b574-c0e9559538e5',
+      'events/e21f468f-6ab1-4942-aca6-7859689e8939',
+      'events/a383f074-8db6-4f9c-936d-87dfaad045d6',
+    ]),
+  )
+}
+export const statusgetImageURLArray = async (keys: string[]) => {
+  const s3Params = {
+    Bucket: bucketName,
+    Prefix: 'events/',
+  }
+  let objectsList: any = {}
+  objectsList = await s3.getSignedUrlPromise("listObjectsV2", s3Params)
+
+  return objectsList
+}
 
 export const deleteFile = (fileKey: any) => {
   const deleteParams = {
@@ -61,7 +80,6 @@ export const deleteFile = (fileKey: any) => {
 
   return s3.deleteObject(deleteParams).promise()
 }
-
 
 //////DEPRICATED//////////
 export const getFileStream = (folder: string, fileKey: string) => {

@@ -127,15 +127,7 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 }
 
 export const getAllEvents: RequestHandler = async (req, res) => {
-  const events: any[] = await Event.findAll({
-    include: {
-      model: User,
-      attributes: ['fullName'],
-      through: {
-        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
-      },
-    },
-  })
+  const events: any[] = await Event.findAll({ order: [['date', 'ASC']] })
 
   let imageUrls = []
   for (let i = 0; i < events.length; i++) {
@@ -157,7 +149,11 @@ export const getAllEvents: RequestHandler = async (req, res) => {
 
 export const getYearsEvents: RequestHandler = async (req, res) => {
   const events: any[] = await Event.findAll({
-    where: sequelize.where(sequelize.fn('YEAR', sequelize.col('date')), new Date().getUTCFullYear()),
+    where: sequelize.where(
+      sequelize.fn('YEAR', sequelize.col('date')),
+      new Date().getUTCFullYear(),
+    ),
+    order: [['date', 'ASC']],
     include: {
       model: User,
       attributes: ['fullName'],
@@ -190,30 +186,29 @@ export const getOneEvent: RequestHandler = async (req, res) => {
   if (!id) {
     throw new BadRequestError('Please provide id')
   }
-  const event: any = await Event.findOne({
-    where: { id: id },
-    include: {
-      model: User,
-      attributes: ['fullName'],
-      through: {
-        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
-      },
-    },
-  })
-  if (!event) {
+
+  const event: any = await sequelize.query(
+    `SELECT DISTINCT devico_project.events.*, 
+    GROUP_CONCAT('{ "carModel": "', devico_project.cars.model, '", "userName": "', devico_project.users.fullName, '" , "partNumber": "',  devico_project.event_participants.desiredPartNumber, '" }' SEPARATOR ';') AS eventParicipants
+    FROM devico_project.events 
+    LEFT OUTER JOIN devico_project.event_participants on devico_project.events.id = devico_project.event_participants.eventId
+    LEFT OUTER JOIN devico_project.users on devico_project.event_participants.userId = devico_project.users.id
+    LEFT OUTER JOIN devico_project.cars on devico_project.event_participants.carId = devico_project.cars.id
+    WHERE devico_project.events.id = ${id}
+    GROUP BY devico_project.events.id
+    `,
+  )
+
+  if (!event[0][0]) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
 
   let imageUrl = null
-  if (event.imageKey) {
-    imageUrl = await (await statusgetImageURL(event.imageKey)).imageUrl
+  if (event[0][0].imageKey) {
+    imageUrl = await (await statusgetImageURL(event[0][0].imageKey)).imageUrl
   }
 
-  for (let j = 0; j < event.users.length; j++) {
-    event.users[j].carModel = await Car.findOne({ where: { id: 1 } })
-  }
-
-  res.status(StatusCodes.OK).json({ event, url: imageUrl })
+  res.status(StatusCodes.OK).json({ event: event[0][0], url: imageUrl })
 }
 
 export const getEventsForOneUser: RequestHandler = async (req, res) => {
@@ -222,16 +217,37 @@ export const getEventsForOneUser: RequestHandler = async (req, res) => {
     throw new BadRequestError('Please provide id')
   }
 
-  const events = await User.findOne({
+  const events: any = await User.findOne({
     where: { id: id },
+    attributes: [],
     include: {
       model: Event,
+      where: sequelize.where(
+        sequelize.fn('YEAR', sequelize.col('date')),
+        new Date().getUTCFullYear(),
+      ),
       through: {
         attributes: [],
       },
     },
   })
-  res.status(StatusCodes.OK).json(events)
+
+  let imageUrls = []
+  for (let i = 0; i < events.events.length; i++) {
+    if (events.events[i].imageKey) {
+      const { imageUrl } = await statusgetImageURL(events.events[i].imageKey)
+      imageUrls.push(imageUrl)
+    } else {
+      imageUrls.push(null)
+    }
+  }
+
+  let eventsWithUrls = []
+  for (let i = 0; i < events.events.length; i++) {
+    eventsWithUrls.push({ event: events.events[i], url: imageUrls[i] })
+  }
+
+  res.status(StatusCodes.OK).json({ events: eventsWithUrls })
 }
 
 export const getUsersForOneEvent: RequestHandler = async (req, res) => {
@@ -252,20 +268,40 @@ export const getUsersForOneEvent: RequestHandler = async (req, res) => {
   res.status(StatusCodes.OK).json(users)
 }
 
-export const getEventsForYear: RequestHandler = async (req, res) => {
-  const startDate = moment('01/01/2022', 'DD/MM/YYYY')
-  const endDate = moment('01/01/2023', 'DD/MM/YYYY')
-  const events = await Event.findAll({
-    where: {
-      createdAt: {
-        $lt: new Date(),
-      },
-    },
+export const getMonthEvents: RequestHandler = async (req, res) => {
+  const month: number = parseInt(req.params.month)
+  const year: number = parseInt(req.params.year)
+  const events: any[] = await Event.findAll({
+    where: [
+      sequelize.where(sequelize.fn('YEAR', sequelize.col('date')), year),
+      sequelize.where(sequelize.fn('MONTH', sequelize.col('date')), month),
+    ],
+    attributes: ['date', 'name'],
+    order: [['date', 'ASC']],
   })
+
   res.status(StatusCodes.OK).json(events)
 }
 
-export const getEventsForLastYears: RequestHandler = async (req, res) => {
-  const events = await Event.findAll({ where: {} })
+export const getUpcomingEvents: RequestHandler = async (req, res) => {
+  const sevenDaysFromNow = new Date(new Date().setDate(new Date().getDate() + 7))
+  const events: any[] = await Event.findAll({
+    where: {
+      date: {
+        $gte: new Date(),
+      },
+    },
+    order: [['date', 'ASC']],
+  })
+
+  res.status(StatusCodes.OK).json(events)
+}
+
+export const getAllEventsCalendar: RequestHandler = async (req, res) => {
+  const events: any[] = await Event.findAll({
+    attributes: ['date', 'name'],
+    order: [['date', 'ASC']],
+  })
+
   res.status(StatusCodes.OK).json(events)
 }

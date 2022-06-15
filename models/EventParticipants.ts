@@ -5,7 +5,7 @@ import Car from './Car'
 import Event from './Event'
 import User from './User'
 
-const EventParticipants = sequelize.define('event-participants', {
+const EventParticipants = sequelize.define('event_participants', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,

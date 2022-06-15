@@ -14,10 +14,13 @@ export const getUserInfo: RequestHandler = async (req, res) => {
   if (!user) {
     throw new UnAuthenticatedError('Invalid Credentials')
   }
-
-  const { imageUrl } = await statusgetImageURL(user.avatarKey)
-
-  res.status(StatusCodes.OK).json({ data: user, image: imageUrl })
+  
+  if (user.avatarKey) {
+    const { imageUrl } = await statusgetImageURL(user.avatarKey)
+    res.status(StatusCodes.OK).json({ data: user, image: imageUrl })
+  } else {
+    res.status(StatusCodes.OK).json({ data: user, image: null })
+  }
 }
 
 export const getAllUsers: RequestHandler = async (req, res) => {
@@ -157,6 +160,7 @@ export const getUsersDriversData: RequestHandler = async (req, res) => {
   if (!user) {
     throw new BadRequestError('Please correct id')
   }
+  const driversData: any = await DriversData.findOne({ where: { user_id: id } })
 
-  res.status(StatusCodes.OK).json(user['driversdata'])
+  res.status(StatusCodes.OK).json(driversData)
 }
