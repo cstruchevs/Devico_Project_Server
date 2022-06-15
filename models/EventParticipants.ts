@@ -41,6 +41,18 @@ const EventParticipants = sequelize.define('event_participants', {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
+  status: {
+    type: Sequelize.ENUM('pending', 'declined', 'approved', 'finished'),
+    allowNull: true,
+  },
+})
+
+//Associations
+EventParticipants.belongsTo(Event)
+Event.hasMany(EventParticipants, {
+  foreignKey: 'eventId',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
 })
 
 export default EventParticipants

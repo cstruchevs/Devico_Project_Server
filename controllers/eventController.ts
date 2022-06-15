@@ -9,6 +9,8 @@ import moment from 'moment'
 import sequelize from '../db/database'
 import Car from '../models/Car'
 import { getFileStream, deleteFile, statusgetImageURL } from './s3Constroller'
+import { io } from '../app'
+import { addNotificationInner } from './notificationsController'
 
 export const postEvent: RequestHandler = async (req, res) => {
   let {
@@ -129,7 +131,7 @@ export const deleteUserEvent: RequestHandler = async (req, res) => {
 export const getAllEvents: RequestHandler = async (req, res) => {
   const events: any[] = await Event.findAll({ order: [['date', 'ASC']] })
 
-  let imageUrls = []
+  let imageUrls: any[] = []
   for (let i = 0; i < events.length; i++) {
     if (events[i].imageKey) {
       const { imageUrl } = await statusgetImageURL(events[i].imageKey)
@@ -139,7 +141,7 @@ export const getAllEvents: RequestHandler = async (req, res) => {
     }
   }
 
-  let eventsWithUrls = []
+  let eventsWithUrls: any[] = []
   for (let i = 0; i < events.length; i++) {
     eventsWithUrls.push({ event: events[i], url: imageUrls[i] })
   }
@@ -154,16 +156,9 @@ export const getYearsEvents: RequestHandler = async (req, res) => {
       new Date().getUTCFullYear(),
     ),
     order: [['date', 'ASC']],
-    include: {
-      model: User,
-      attributes: ['fullName'],
-      through: {
-        attributes: ['id', 'vehicleClass', 'desiredPartNumber', 'carId'],
-      },
-    },
   })
 
-  let imageUrls = []
+  let imageUrls: any[] = []
   for (let i = 0; i < events.length; i++) {
     if (events[i].imageKey) {
       const { imageUrl } = await statusgetImageURL(events[i].imageKey)
@@ -173,7 +168,7 @@ export const getYearsEvents: RequestHandler = async (req, res) => {
     }
   }
 
-  let eventsWithUrls = []
+  let eventsWithUrls: any[] = []
   for (let i = 0; i < events.length; i++) {
     eventsWithUrls.push({ event: events[i], url: imageUrls[i] })
   }
@@ -187,28 +182,32 @@ export const getOneEvent: RequestHandler = async (req, res) => {
     throw new BadRequestError('Please provide id')
   }
 
-  const event: any = await sequelize.query(
-    `SELECT DISTINCT devico_project.events.*, 
-    GROUP_CONCAT('{ "carModel": "', devico_project.cars.model, '", "userName": "', devico_project.users.fullName, '" , "partNumber": "',  devico_project.event_participants.desiredPartNumber, '" }' SEPARATOR ';') AS eventParicipants
-    FROM devico_project.events 
-    LEFT OUTER JOIN devico_project.event_participants on devico_project.events.id = devico_project.event_participants.eventId
-    LEFT OUTER JOIN devico_project.users on devico_project.event_participants.userId = devico_project.users.id
-    LEFT OUTER JOIN devico_project.cars on devico_project.event_participants.carId = devico_project.cars.id
-    WHERE devico_project.events.id = ${id}
-    GROUP BY devico_project.events.id
-    `,
-  )
+  const event: any = await Event.findOne({
+    where: { id: id },
+    include: [
+      {
+        model: EventParticipants,
+        attributes: ['desiredPartNumber', 'id', 'status'],
+        include: [
+          {
+            model: Car,
+            attributes: ['model'],
+          },
+          {
+            model: User,
+            attributes: ['fullName'],
+          },
+        ],
+      },
+    ],
+  })
 
-  if (!event[0][0]) {
-    throw new UnAuthenticatedError('Invalid Credentials')
+  if (event.imageKey) {
+    const { imageUrl } = await statusgetImageURL(event.imageKey)
+    res.status(StatusCodes.OK).json({ event: event, url: imageUrl })
+  } else {
+    res.status(StatusCodes.OK).json({ event: event, url: null })
   }
-
-  let imageUrl = null
-  if (event[0][0].imageKey) {
-    imageUrl = await (await statusgetImageURL(event[0][0].imageKey)).imageUrl
-  }
-
-  res.status(StatusCodes.OK).json({ event: event[0][0], url: imageUrl })
 }
 
 export const getEventsForOneUser: RequestHandler = async (req, res) => {
@@ -219,53 +218,39 @@ export const getEventsForOneUser: RequestHandler = async (req, res) => {
 
   const events: any = await User.findOne({
     where: { id: id },
-    attributes: [],
-    include: {
-      model: Event,
-      where: sequelize.where(
-        sequelize.fn('YEAR', sequelize.col('date')),
-        new Date().getUTCFullYear(),
-      ),
-      through: {
-        attributes: [],
+    include: [
+      {
+        model: EventParticipants,
+        attributes: ['id'],
+        include: [
+          {
+            model: Event,
+            where: sequelize.where(
+              sequelize.fn('YEAR', sequelize.col('date')),
+              new Date().getUTCFullYear(),
+            ),
+          },
+        ],
       },
-    },
+    ],
   })
 
-  let imageUrls = []
-  for (let i = 0; i < events.events.length; i++) {
-    if (events.events[i].imageKey) {
-      const { imageUrl } = await statusgetImageURL(events.events[i].imageKey)
+  let imageUrls: any[] = []
+  for (let i = 0; i < events.event_participants.length; i++) {
+    if (events.event_participants[i].event.imageKey) {
+      const { imageUrl } = await statusgetImageURL(events.event_participants[i].event.imageKey)
       imageUrls.push(imageUrl)
     } else {
       imageUrls.push(null)
     }
   }
 
-  let eventsWithUrls = []
-  for (let i = 0; i < events.events.length; i++) {
-    eventsWithUrls.push({ event: events.events[i], url: imageUrls[i] })
+  let eventsWithUrls: any[] = []
+  for (let i = 0; i < events.event_participants.length; i++) {
+    eventsWithUrls.push({ event: events.event_participants[i].event, url: imageUrls[i] })
   }
 
   res.status(StatusCodes.OK).json({ events: eventsWithUrls })
-}
-
-export const getUsersForOneEvent: RequestHandler = async (req, res) => {
-  const { id } = req.params
-  if (!id) {
-    throw new BadRequestError('Please provide id')
-  }
-
-  const users = await Event.findOne({
-    where: { id: id },
-    include: {
-      model: User,
-      through: {
-        attributes: [],
-      },
-    },
-  })
-  res.status(StatusCodes.OK).json(users)
 }
 
 export const getMonthEvents: RequestHandler = async (req, res) => {
@@ -284,7 +269,6 @@ export const getMonthEvents: RequestHandler = async (req, res) => {
 }
 
 export const getUpcomingEvents: RequestHandler = async (req, res) => {
-  const sevenDaysFromNow = new Date(new Date().setDate(new Date().getDate() + 7))
   const events: any[] = await Event.findAll({
     where: {
       date: {
@@ -304,4 +288,34 @@ export const getAllEventsCalendar: RequestHandler = async (req, res) => {
   })
 
   res.status(StatusCodes.OK).json(events)
+}
+
+export const updateParticipantStatus: RequestHandler = async (req, res) => {
+  const { userId, eventId, status } = req.body
+
+  if (!userId || !eventId || !status) {
+    throw new BadRequestError('Please provide all arguments')
+  }
+
+  let participant: any = await EventParticipants.findOne({
+    where: { userId: userId, eventId: eventId },
+  })
+  if (!participant) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  participant.update({
+    status: status,
+  })
+
+  if (io.sockets.adapter.rooms.get(`user_${userId}`)) {
+    io.to(`user_${userId}`).emit(
+      'receive_notification',
+      JSON.stringify({ text: status, updatedAt: new Date() }),
+    )
+  } else {
+    await addNotificationInner(userId, status)
+  }
+
+  res.status(StatusCodes.OK).json(participant)
 }

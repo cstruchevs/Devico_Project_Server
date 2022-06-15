@@ -21,8 +21,8 @@ const News = sequelize.define('news', {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  imageKey: { 
-    type: Sequelize.STRING, 
+  imageKey: {
+    type: Sequelize.STRING,
     allowNull: true,
   },
 })

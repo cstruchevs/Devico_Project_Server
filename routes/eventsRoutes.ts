@@ -9,16 +9,20 @@ import {
   getAllEvents,
   getOneEvent,
   getEventsForOneUser,
-  getUsersForOneEvent,
   getYearsEvents,
   getAllEventsCalendar,
   getMonthEvents,
   getUpcomingEvents,
+  updateParticipantStatus,
 } from '../controllers/eventController'
 import auth from '../middleware/auth'
 
 router.route('/').post(postEvent)
 router.route('/').get(getAllEvents)
+
+router.route("/changeStatus").patch(updateParticipantStatus)
+
+router.route('/testOne/:id').get(getOneEvent)
 router.route('/upcoming').get(getUpcomingEvents)
 router.route('/yearsEvents').get(getYearsEvents)
 router.route('/calendar').get(getAllEventsCalendar)
@@ -28,6 +32,5 @@ router.route('/:id').delete(deleteEvent)
 router.route('/:id').patch(updateEvent)
 router.route('/reg').post(userRegisterEvent)
 router.route('/usersEvents/:id').get(getEventsForOneUser)
-router.route('/eventsUser/:id').get(getUsersForOneEvent)
 
 export default router

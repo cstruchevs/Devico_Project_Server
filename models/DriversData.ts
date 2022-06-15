@@ -1,8 +1,8 @@
-import Sequelize from "sequelize";
+import Sequelize from 'sequelize'
 
-import sequelize from "../db/database";
+import sequelize from '../db/database'
 
-const DriversData = sequelize.define("driversData", {
+const DriversData = sequelize.define('driversData', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -18,7 +18,7 @@ const DriversData = sequelize.define("driversData", {
   idNumber: { type: Sequelize.STRING, allowNull: true },
   sportDriverLicense: { type: Sequelize.STRING, allowNull: true },
   nickname: { type: Sequelize.STRING, allowNull: true },
-  phone: { type: Sequelize.STRING, allowNull: true }
-});
-
-export default DriversData;
+  phone: { type: Sequelize.STRING, allowNull: true },
+})
+  
+export default DriversData

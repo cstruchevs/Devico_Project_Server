@@ -3,6 +3,12 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 import sequelize from '../db/database'
+import DriversData from './DriversData'
+import Car from './Car'
+import License from './License'
+import LicenseMembers from './LicenseMembers'
+import EventParticipants from './EventParticipants'
+import Notifications from './Notifications'
 
 const User = sequelize.define('user', {
   id: {
@@ -50,5 +56,19 @@ User.prototype.comparePassword = async function (candidatePassword: any) {
   const isMatch = await bcrypt.compare(candidatePassword, this.password)
   return isMatch
 }
+
+//Associations
+User.hasOne(DriversData, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+DriversData.belongsTo(User)
+
+User.hasMany(Car, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+
+User.belongsToMany(License, { through: LicenseMembers })
+License.belongsToMany(User, { through: LicenseMembers })
+
+User.hasMany(EventParticipants, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+EventParticipants.belongsTo(User)
+
+User.hasMany(Notifications, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 
 export default User
