@@ -1,18 +1,34 @@
-import { RequestHandler } from "express";
-import { StatusCodes } from "http-status-codes";
-import { BadRequestError, UnAuthenticatedError } from "../errors/index";
-import Car from "../models/Car";
-import User from "../models/User";
+import { RequestHandler } from 'express'
+import { StatusCodes } from 'http-status-codes'
+import { BadRequestError, UnAuthenticatedError } from '../errors/index'
+import Car from '../models/Car'
+import User from '../models/User'
+import EventParticipants from '../models/EventParticipants'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 export const deleteCar: RequestHandler = async (req, res) => {
-  const { id } = req.params;
-  if (!id) {
-    throw new BadRequestError("Please provide id");
-  }
-  await Car.destroy({ where: { id: id } });
+  const { id, token } = req.params
+  console.log(token)
+  const decodedClaims: any = jwt.verify(token, 'jwtsecret')
+  const userId = decodedClaims.userId
 
-  res.status(StatusCodes.OK).json(`Deleted car with id ${id}`);
-};
+  if (!id) {
+    throw new BadRequestError('Please provide id')
+  }
+
+  const user: any = await User.findOne({
+    where: { id: userId },
+    include: ['cars'],
+  })
+
+  if (!user) {
+    throw new UnAuthenticatedError('Invalid Credentials')
+  }
+
+  await EventParticipants.destroy({ where: { carId: id } })
+  await Car.destroy({ where: { id: id } })
+  res.status(StatusCodes.OK).json(user.cars)
+}
 
 export const postCar: RequestHandler = async (req, res) => {
   const {
@@ -25,7 +41,7 @@ export const postCar: RequestHandler = async (req, res) => {
     driveTrain,
     fullNameOwner,
     id,
-  } = req.body;
+  } = req.body
 
   if (
     !model ||
@@ -37,17 +53,17 @@ export const postCar: RequestHandler = async (req, res) => {
     !driveTrain ||
     !fullNameOwner
   ) {
-    throw new BadRequestError("please provide all values");
+    throw new BadRequestError('please provide all values')
   }
 
   const user: any = await User.findOne({
     where: { id: id },
-    include: ["cars"],
-  });
+    include: ['cars'],
+  })
   if (!user) {
-    throw new UnAuthenticatedError("Invalid Credentials");
+    throw new UnAuthenticatedError('Invalid Credentials')
   }
-    const createdCar = await user.createCar({
+  const createdCar = await user.createCar({
     model,
     year,
     capaciteEngine,
@@ -56,26 +72,26 @@ export const postCar: RequestHandler = async (req, res) => {
     viaNumber,
     driveTrain,
     fullNameOwner,
-  });  
+  })
 
-  res.status(StatusCodes.OK).json(createdCar);
-};
+  res.status(StatusCodes.OK).json(createdCar)
+}
 
 export const getAllCars: RequestHandler = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params
   const user: any = await User.findOne({
     where: { id: id },
-    include: ["cars"],
-  });
+    include: ['cars'],
+  })
   if (!user) {
-    throw new UnAuthenticatedError("Invalid Credentials");
+    throw new UnAuthenticatedError('Invalid Credentials')
   }
-  res.status(StatusCodes.OK).json(user.cars);
-};
+  res.status(StatusCodes.OK).json(user.cars)
+}
 
 export const updateCar: RequestHandler = async (req, res) => {
+  const { id } = req.params
   const {
-    id,
     model,
     year,
     capaciteEngine,
@@ -84,15 +100,15 @@ export const updateCar: RequestHandler = async (req, res) => {
     viaNumber,
     driveTrain,
     fullNameOwner,
-  } = req.body;
+  } = req.body
 
   if (!id) {
-    throw new BadRequestError("Please provide id");
+    throw new BadRequestError('Please provide id')
   }
-  let car: any = await Car.findOne({ where: { id: id }, include: ["cars"] });
+  let car: any = await Car.findOne({ where: { id: id }})
 
   if (!car) {
-    throw new UnAuthenticatedError("Invalid Credentials");
+    throw new UnAuthenticatedError('Invalid Credentials')
   }
 
   car = await Car.upsert({
@@ -105,7 +121,7 @@ export const updateCar: RequestHandler = async (req, res) => {
     viaNumber: viaNumber,
     driveTrain: driveTrain,
     fullNameOwner: fullNameOwner,
-  });
+  })
 
-  res.status(StatusCodes.OK).json(car);
-};
+  res.status(StatusCodes.OK).json(car)
+}
