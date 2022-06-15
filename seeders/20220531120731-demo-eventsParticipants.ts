@@ -11,6 +11,17 @@ module.exports = {
         desiredPartNumber: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "pending",
+      },
+      {
+        vehicleClass: 'Honda Civic',
+        userId: 1,
+        eventId: 9,
+        carId: 1,
+        desiredPartNumber: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: "pending",
       },
       {
         vehicleClass: 'BMW X5',
@@ -20,6 +31,7 @@ module.exports = {
         desiredPartNumber: 2,
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "pending",
       },
       {
         vehicleClass: 'Shkoda Octavia',
@@ -29,6 +41,7 @@ module.exports = {
         desiredPartNumber: 4,
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "approved",
       },
       {
         vehicleClass: 'Ford Focus',
@@ -38,6 +51,7 @@ module.exports = {
         desiredPartNumber: 3,
         createdAt: new Date(),
         updatedAt: new Date(),
+        status: "pending",
       },
     ])
   },

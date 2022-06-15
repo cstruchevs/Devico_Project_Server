@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize'
 
 import sequelize from '../db/database'
+import EventParticipants from './EventParticipants'
 
 const Event = sequelize.define('event', {
   id: {

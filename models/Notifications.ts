@@ -1,10 +1,9 @@
 import Sequelize from 'sequelize'
 
 import sequelize from '../db/database'
-import License from './License'
 import User from './User'
 
-const LicenseMembers = sequelize.define('license-members', {
+const Notifications = sequelize.define('notifications', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -18,13 +17,10 @@ const LicenseMembers = sequelize.define('license-members', {
       key: 'id',
     },
   },
-  licenseId: {
-    type: Sequelize.INTEGER,
-    references: {
-      model: License,
-      key: 'id',
-    },
+  text: {
+    type: Sequelize.TEXT,
+    allowNull: false,
   },
 })
 
-export default LicenseMembers
+export default Notifications

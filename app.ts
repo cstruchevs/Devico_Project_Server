@@ -1,5 +1,10 @@
 import express, { Application } from 'express'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+
 export const app: Application = express()
+export const httpServer = createServer(app)
+export const io = new Server(httpServer, {})
 
 //utils
 import 'express-async-errors'
@@ -18,15 +23,7 @@ import eventsRouter from './routes/eventsRoutes'
 import licenseRouter from './routes/licenseRoutes'
 import userRouter from './routes/userRoutes'
 import imageRouter from './routes/imageRoutes'
-//Models
-import User from './models/User'
-import Car from './models/Car'
-import Event from './models/Event'
-import EventParticipants from './models/EventParticipants'
-import License from './models/License'
-import LicenseType from './models/LicenseType'
-import LicenseMembers from './models/LicenseMembers'
-import DriversData from './models/DriversData'
+import notificationsRouter from './routes/notificationsRoutes'
 
 dotenv.config()
 
@@ -35,6 +32,7 @@ app.use(
     origin: ['http://localhost:3000', 'http://192.168.56.1:3000'],
   }),
 )
+
 app.use(express.json())
 
 app.use('/news', newsRouter)
@@ -44,36 +42,33 @@ app.use('/license', licenseRouter)
 app.use(authRouter)
 app.use('/user', userRouter)
 app.use('/image', imageRouter)
+app.use('/notifications', notificationsRouter)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
 
-User.hasMany(DriversData, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-User.hasMany(Car, { foreignKey: 'user_id', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
-User.belongsToMany(License, { through: LicenseMembers })
-License.belongsToMany(User, { through: LicenseMembers })
-LicenseType.hasMany(License, {
-  foreignKey: 'licenseType_id',
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-})
-User.belongsToMany(Event, { through: EventParticipants })
-Event.belongsToMany(User, { through: EventParticipants })
-// Event.hasOne(Car, { foreignKey: 'eventId' })
-
-const port = 5000
+const port = process.env['PORT']
 
 const start = (): void => {
   sequelize
     // .sync({ force: true })
     .sync()
     .then(() => {
-      app.listen(port, () => {
+      httpServer.listen(port, () => {
         console.log(`Server is listening on port ${port}...`)
       })
     })
     .catch((err: Error) => {
       console.log(err)
     })
+
+  io.on('connection', socket => {
+    process.stdout.write(`User Connected: ${socket.id}`)
+
+    socket.on('join_room', data => {
+      socket.join(`user_${data}`)
+    })
+  })
 }
+
 start()
